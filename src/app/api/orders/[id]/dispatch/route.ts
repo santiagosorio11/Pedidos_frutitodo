@@ -1,4 +1,6 @@
+import { after } from "next/server";
 import { actionRequestSchema } from "@/lib/schemas";
+import { notifyOrderDispatched } from "@/lib/outbound-webhook";
 import { getPanelAccess } from "@/lib/panel-auth";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
@@ -31,8 +33,23 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       );
     }
     if (error) throw error;
-    if (!data?.[0]) throw new Error("dispatch_order returned no order");
-    return noStoreJson({ order: rowToOrder(data[0]) });
+    const row = data?.[0];
+    if (!row) throw new Error("dispatch_order returned no order");
+    const order = rowToOrder(row);
+
+    /* The dispatch is already committed, so the CRM update runs after the response:
+       the operator never waits on n8n, and n8n being down never fails the action. */
+    after(() =>
+      notifyOrderDispatched({
+        event: "order.dispatched",
+        requestId: parsed.data.requestId,
+        ghlLocationId: access.ghlLocationId,
+        ghlContactId: row.ghl_contact_id,
+        order,
+      }),
+    );
+
+    return noStoreJson({ order });
   } catch (error) {
     console.error("Dispatch failed", error instanceof Error ? error.message : "Unknown error");
     return serverError();

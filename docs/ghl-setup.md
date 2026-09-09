@@ -104,3 +104,42 @@ Cuando el panel no reciba credenciales válidas indicará en pantalla qué falta
 ## 5. Dominio del iframe
 
 El panel responde con `Content-Security-Policy: frame-ancestors` limitado a los dominios de GHL, incluido el white label `app.iaorbita.com`. Si la agencia cambia de dominio, agregarlo en la variable de entorno `PANEL_FRAME_ANCESTORS` de Vercel como lista separada por comas; se suma a los valores por defecto sin tocar el código.
+
+## 6. Aviso de despacho hacia n8n
+
+Cuando un pedido se marca como despachado, la app avisa a n8n para que actualice la oportunidad en GHL. Se configura con dos variables de entorno en Vercel:
+
+| Variable | Contenido |
+|---|---|
+| `N8N_DISPATCH_WEBHOOK_URL` | URL del nodo Webhook de n8n |
+| `N8N_WEBHOOK_SECRET` | Opcional. Se envía como `Authorization: Bearer <valor>` |
+
+Si `N8N_DISPATCH_WEBHOOK_URL` está vacía la app no llama a nadie; el panel funciona igual. Es intencional: la automatización es opcional y nunca debe poder tumbar el despacho.
+
+Cuerpo del `POST`:
+
+```json
+{
+  "event": "order.dispatched",
+  "requestId": "<id único del clic en el panel>",
+  "ghlLocationId": "UfbKDvUAPCDEaRQWYXau",
+  "ghlContactId": "<contacto en GHL>",
+  "order": {
+    "id": "<uuid>",
+    "orderNumber": "FT-000021",
+    "customerName": "...",
+    "customerPhone": "...",
+    "deliveryType": "domicilio",
+    "deliveryAddress": "...",
+    "items": [{ "name": "...", "quantity": 1.5, "unit": "kg" }],
+    "notes": "...",
+    "status": "dispatched",
+    "receivedAt": "...",
+    "dispatchedAt": "..."
+  }
+}
+```
+
+`ghlContactId` es la llave para encontrar la oportunidad. `requestId` sirve como llave de idempotencia si n8n necesita descartar repeticiones.
+
+El envío ocurre después de responderle al panel, con `after()` de Next: el operario nunca espera a n8n. Ante un `5xx` reintenta una vez; ante un `4xx` no reintenta porque el payload no va a mejorar. Si agota los intentos lo deja en los logs de Vercel nombrando el pedido, para poder reponerlo a mano.
