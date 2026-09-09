@@ -36,6 +36,10 @@ type Filters = {
   page: number;
 };
 
+/* The operation watches this panel on a shared screen all day; a slower beat is
+   enough to catch a new order and keeps the tab from hammering the API. */
+const REFRESH_INTERVAL_MS = 30_000;
+
 const EMPTY_FILTERS: Filters = {
   scope: "active",
   status: "",
@@ -170,7 +174,7 @@ export function OrdersPanel() {
 
     const interval = window.setInterval(() => {
       if (document.visibilityState === "visible") void loadOrders(true);
-    }, 5000);
+    }, REFRESH_INTERVAL_MS);
     const onVisibility = () => {
       if (document.visibilityState === "visible") void loadOrders(true);
     };
