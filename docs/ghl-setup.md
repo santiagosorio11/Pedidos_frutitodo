@@ -38,7 +38,7 @@ No habilitar un segundo trigger automático para el mismo workflow; la entrada d
 Crear el workflow en borrador y añadir un **Custom Webhook**:
 
 - Método: `POST`
-- URL: `https://<DOMINIO_VERCEL>/api/webhooks/ghl/orders`
+- URL: `https://pedidos-frutitodo.vercel.app/api/webhooks/ghl/orders`
 - Header: `Authorization: Bearer <GHL_INGEST_SECRET>`
 - Header: `Content-Type: application/json`
 - Body JSON:
@@ -73,8 +73,26 @@ Después del webhook:
 
 Crear el Custom Menu Link **Pedidos Frutitodo** con apertura **Embedded Page (iFrame)** y limitarlo a los roles operativos.
 
+La URL debe llevar el `location` y el `token` **escritos literalmente**, sin merge tags:
+
 ```text
-https://<DOMINIO_VERCEL>/panel#location={{location.id}}&token={{custom_values.frutitodo_panel_token}}
+https://pedidos-frutitodo.vercel.app/panel?location=UfbKDvUAPCDEaRQWYXau&token=<TOKEN>
 ```
 
-Crear `frutitodo_panel_token` en **Settings → Custom Values** usando el valor generado por `npm run provision:location`. El token del fragmento no se envía al servidor al cargar el documento; el panel lo mueve a `sessionStorage` y elimina el fragmento.
+`UfbKDvUAPCDEaRQWYXau` es el location ID de la subcuenta COL - Frutitodo y `<TOKEN>` es el valor generado por `npm run provision:location`, guardado también en el custom value `frutitodo_panel_token`. Si el token se perdió, regenerarlo:
+
+```powershell
+npm.cmd run provision:location -- --location-id UfbKDvUAPCDEaRQWYXau --name "COL - Frutitodo"
+```
+
+Cada ejecución reemplaza el token anterior; hay que actualizar el enlace del menú y el custom value con el nuevo valor.
+
+**No usar `{{custom_values.frutitodo_panel_token}}` en el enlace.** Los Custom Menu Links solo resuelven un conjunto reducido de merge tags y los custom values no están incluidos, así que GHL entrega el enlace sin token y el panel muestra `Enlace de acceso incompleto`. El menú vive dentro de una sola subcuenta, así que los valores literales son además más predecibles que `{{location.id}}`.
+
+El panel también acepta el formato antiguo con fragmento (`/panel#location=...&token=...`) y los alias `location_id` y `panel_token`, por si GHL reescribe la URL. Al cargar mueve las credenciales a `sessionStorage` y las borra de la barra de direcciones; si el navegador bloquea el almacenamiento dentro del iframe, las conserva en memoria y deja la URL intacta para que el siguiente refresco vuelva a funcionar.
+
+Cuando el panel no reciba credenciales válidas indicará en pantalla qué falta (token, location o merge tag sin resolver), lo que permite diagnosticar el enlace sin abrir la consola.
+
+## 5. Dominio del iframe
+
+El panel responde con `Content-Security-Policy: frame-ancestors` limitado a los dominios de GHL, incluido el white label `app.iaorbita.com`. Si la agencia cambia de dominio, agregarlo en la variable de entorno `PANEL_FRAME_ANCESTORS` de Vercel como lista separada por comas; se suma a los valores por defecto sin tocar el código.

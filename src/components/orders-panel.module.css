@@ -880,6 +880,23 @@
   font-size: 22px;
 }
 
+.accessHint {
+  color: var(--danger);
+}
+
+.accessCode {
+  max-width: 100%;
+  margin-top: 12px;
+  padding: 8px 12px;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--surface);
+  font-family: ui-monospace, "SFMono-Regular", "Menlo", monospace;
+  font-size: 12px;
+}
+
 .accessIcon {
   display: grid;
   width: 54px;

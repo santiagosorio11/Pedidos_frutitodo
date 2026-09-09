@@ -25,6 +25,7 @@ n8n_orbita_pedidos_mvp.json
 .vercel/
 
 # Editor / OS
+.claude/
 .DS_Store
 Thumbs.db
 *.log

@@ -46,6 +46,19 @@ test("loads the embedded operational panel and strips the token fragment", async
   await expect.poll(() => page.url()).not.toContain("token=");
 });
 
+test("loads the panel from a query string link", async ({ page }) => {
+  await page.goto("/panel?location=frutitodo-test&token=secret-test-token");
+  await expect(page.getByRole("heading", { name: "Panel de pedidos" })).toBeVisible();
+  await expect(page.getByText("María Fernanda Rodríguez")).toBeVisible();
+  await expect.poll(() => page.url()).not.toContain("token=");
+});
+
+test("explains a link GHL delivered without replacing the merge tag", async ({ page }) => {
+  await page.goto("/panel?location=frutitodo-test&token={{custom_values.frutitodo_panel_token}}");
+  await expect(page.getByRole("heading", { name: "Enlace de acceso incompleto" })).toBeVisible();
+  await expect(page.getByText("sin reemplazar los valores dinámicos")).toBeVisible();
+});
+
 test("renders the 80 mm ticket and asks for explicit print confirmation", async ({ page }) => {
   await page.goto("/panel#location=frutitodo-test&token=secret-test-token");
   await page.getByRole("button", { name: "Imprimir", exact: true }).click();

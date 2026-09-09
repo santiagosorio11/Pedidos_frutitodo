@@ -20,10 +20,11 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { resolvePanelAccess } from "@/lib/panel-credentials";
+import type { CredentialIssue, PanelCredentials } from "@/lib/panel-credentials";
 import type { DeliveryType, Order, OrdersResponse, OrderStatus } from "@/types/orders";
 import styles from "./orders-panel.module.css";
 
-type Credentials = { token: string; locationId: string };
 type Scope = "active" | "dispatched";
 type Filters = {
   scope: Scope;
@@ -45,24 +46,7 @@ const EMPTY_FILTERS: Filters = {
   page: 0,
 };
 
-function parseCredentials(): Credentials | null {
-  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  const hashToken = hash.get("token")?.trim();
-  const hashLocation = hash.get("location")?.trim();
-
-  if (hashToken && hashLocation) {
-    sessionStorage.setItem("frutitodo.panel.token", hashToken);
-    sessionStorage.setItem("frutitodo.panel.location", hashLocation);
-    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
-    return { token: hashToken, locationId: hashLocation };
-  }
-
-  const token = sessionStorage.getItem("frutitodo.panel.token")?.trim();
-  const locationId = sessionStorage.getItem("frutitodo.panel.location")?.trim();
-  return token && locationId ? { token, locationId } : null;
-}
-
-function authHeaders(credentials: Credentials): HeadersInit {
+function authHeaders(credentials: PanelCredentials): HeadersInit {
   return {
     Authorization: `Bearer ${credentials.token}`,
     "X-Location-Id": credentials.locationId,
@@ -107,7 +91,8 @@ function quantityLabel(quantity: number, unit?: string): string {
 }
 
 export function OrdersPanel() {
-  const [credentials, setCredentials] = useState<Credentials | null>(null);
+  const [credentials, setCredentials] = useState<PanelCredentials | null>(null);
+  const [accessIssues, setAccessIssues] = useState<CredentialIssue[]>([]);
   const [accessReady, setAccessReady] = useState(false);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [searchDraft, setSearchDraft] = useState("");
@@ -124,10 +109,12 @@ export function OrdersPanel() {
   const printOrderRef = useRef<Order | null>(null);
 
   useEffect(() => {
-    /* Browser storage and the URL fragment do not exist during SSR. This one-time
+    /* Browser storage and the URL parameters do not exist during SSR. This one-time
        hydration update intentionally happens after the component mounts. */
+    const access = resolvePanelAccess();
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCredentials(parseCredentials());
+    setCredentials(access.credentials);
+    setAccessIssues(access.issues);
     setAccessReady(true);
   }, []);
 
@@ -268,7 +255,7 @@ export function OrdersPanel() {
   const orders = data?.orders || [];
 
   if (!accessReady) return <LoadingScreen />;
-  if (!credentials) return <AccessScreen />;
+  if (!credentials) return <AccessScreen issues={accessIssues} />;
 
   return (
     <>
@@ -749,12 +736,35 @@ function LoadingScreen() {
   return <main className={styles.centerScreen}><RefreshCw size={24} className={styles.spinning} /><p>Cargando panel...</p></main>;
 }
 
-function AccessScreen() {
+/* Ordered from the most specific diagnosis down: the first match is the one worth showing. */
+const ACCESS_HINTS: ReadonlyArray<[CredentialIssue, string]> = [
+  [
+    "unresolved-merge-tag",
+    "GHL entregó el enlace sin reemplazar los valores dinámicos ({{...}}). Escribe el location y el token literales en el menú.",
+  ],
+  [
+    "malformed-token",
+    "El token llegó con caracteres extra. Revisa que el enlace del menú no tenga parámetros adicionales al final.",
+  ],
+  ["missing-token", "El enlace llegó con el location pero sin el parámetro token."],
+  ["missing-location", "El enlace llegó con el token pero sin el parámetro location."],
+  ["no-parameters", "El enlace llegó sin parámetros de acceso."],
+  [
+    "storage-blocked",
+    "El navegador bloqueó el almacenamiento dentro del iframe. Vuelve a abrir el menú para recargar el enlace completo.",
+  ],
+];
+
+function AccessScreen({ issues }: { issues: CredentialIssue[] }) {
+  const hint = ACCESS_HINTS.find(([issue]) => issues.includes(issue))?.[1];
+
   return (
     <main className={styles.centerScreen}>
       <span className={styles.accessIcon}><CircleAlert size={26} /></span>
       <h1>Enlace de acceso incompleto</h1>
       <p>Abre el panel desde el menú “Pedidos Frutitodo” dentro de GHL.</p>
+      {hint ? <p className={styles.accessHint}>{hint}</p> : null}
+      <code className={styles.accessCode}>/panel?location=&lt;LOCATION_ID&gt;&amp;token=&lt;TOKEN&gt;</code>
     </main>
   );
 }
