@@ -19,43 +19,11 @@
   margin-bottom: 22px;
 }
 
-.brandBlock {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.brandMark {
-  display: grid;
-  width: 48px;
-  height: 48px;
-  place-items: center;
-  border-radius: 15px;
-  color: white;
-  background: linear-gradient(145deg, #3188ff, #1761d1);
-  box-shadow: 0 9px 24px rgb(38 120 243 / 25%);
-}
-
-.eyebrow {
-  margin: 0 0 3px;
-  color: var(--brand);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 .header h1 {
   margin: 0;
   font-size: clamp(25px, 2.4vw, 34px);
   line-height: 1.1;
   letter-spacing: -0.035em;
-}
-
-.subtitle {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-size: 14px;
 }
 
 .refreshButton {
@@ -1077,15 +1045,6 @@
 @media (max-width: 720px) {
   .screen {
     padding: 17px 13px 28px;
-  }
-
-  .brandMark {
-    width: 43px;
-    height: 43px;
-  }
-
-  .subtitle {
-    display: none;
   }
 
   .stats {

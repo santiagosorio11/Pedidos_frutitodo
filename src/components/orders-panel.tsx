@@ -262,16 +262,7 @@ export function OrdersPanel() {
       <main className={`${styles.screen} screen-app`}>
         <div className={styles.shell}>
           <header className={styles.header}>
-            <div className={styles.brandBlock}>
-              <div className={styles.brandMark} aria-hidden="true">
-                <ShoppingBasket size={22} strokeWidth={2.2} />
-              </div>
-              <div>
-                <p className={styles.eyebrow}>Frutitodo · Operación</p>
-                <h1>Panel de pedidos</h1>
-                <p className={styles.subtitle}>Alista, imprime y despacha cada pedido desde un solo lugar.</p>
-              </div>
-            </div>
+            <h1>Panel de pedidos</h1>
             <button
               className={styles.refreshButton}
               type="button"
