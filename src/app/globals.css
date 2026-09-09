@@ -1,0 +1,51 @@
+:root {
+  color-scheme: light;
+  --background: #f2f6fb;
+  --surface: #ffffff;
+  --text: #0b1736;
+  --muted: #71819a;
+  --border: #dfe7f1;
+  --brand: #2678f3;
+  --brand-dark: #145ac1;
+  --brand-soft: #eaf2ff;
+  --teal: #0aaa7a;
+  --amber: #d97706;
+  --danger: #c2414a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+a,
+input,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgb(38 120 243 / 22%);
+  outline-offset: 2px;
+}

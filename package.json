@@ -1,0 +1,40 @@
+{
+  "name": "pedidos-frutitodo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:live": "node --env-file-if-exists=.env.local scripts/e2e-live.mjs",
+    "provision:location": "node --env-file-if-exists=.env.local scripts/provision-location.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.116.0",
+    "lucide-react": "^0.468.0",
+    "next": "16.3.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "16.3.4",
+    "jsdom": "^26.0.0",
+    "supabase": "2.117.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.0"
+  }
+}

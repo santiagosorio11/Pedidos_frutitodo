@@ -1,0 +1,33 @@
+# Dependencies and build output
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+.playwright-cli/
+
+# Local secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Supabase local runtime
+supabase/.branches/
+supabase/.temp/
+
+# Local n8n reference export (never publish workflows)
+n8n_orbita_pedidos_mvp.json
+
+# Vercel project binding
+.vercel/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.log
+
+.vercel
+.env*
