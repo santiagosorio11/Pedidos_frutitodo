@@ -97,6 +97,18 @@ El panel también acepta el formato antiguo con fragmento (`/panel#location=...&
 
 Cuando el panel no reciba credenciales válidas indicará en pantalla qué falta (token, location o merge tag sin resolver), lo que permite diagnosticar el enlace sin abrir la consola.
 
+### Estado actual del enlace
+
+El enlace vivo en la subcuenta usa el fragmento en lugar del query:
+
+```text
+https://pedidos-frutitodo.vercel.app/panel#location=UfbKDvUAPCDEaRQWYXau&token=<TOKEN>
+```
+
+No es por preferencia: ese dominio lo sirve un proyecto de Vercel distinto al conectado a GitHub, así que todavía corre el build anterior al arreglo, y ese build solo lee el fragmento. Las dos formas funcionan en el build actual.
+
+Para consolidarlo hay que decidir cuál proyecto se queda con el dominio. El conectado a GitHub construye cada push pero no tiene variables de entorno (`/api/health` responde 500); necesita `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GHL_INGEST_SECRET` y `EMBED_TOKEN_PEPPER` con scope Production. El pepper debe ser idéntico al que generó los tokens, o ninguno validará.
+
 ## 5. Dominio del iframe
 
 El panel responde con `Content-Security-Policy: frame-ancestors` limitado a los dominios de GHL, incluido el white label `app.iaorbita.com`. Si la agencia cambia de dominio, agregarlo en la variable de entorno `PANEL_FRAME_ANCESTORS` de Vercel como lista separada por comas; se suma a los valores por defecto sin tocar el código.
