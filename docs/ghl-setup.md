@@ -38,7 +38,7 @@ No habilitar un segundo trigger automático para el mismo workflow; la entrada d
 Crear el workflow en borrador y añadir un **Custom Webhook**:
 
 - Método: `POST`
-- URL: `https://pedidos-frutitodo.vercel.app/api/webhooks/ghl/orders`
+- URL: `https://pedidos-frutitodo-eight.vercel.app/api/webhooks/ghl/orders`
 - Header: `Authorization: Bearer <GHL_INGEST_SECRET>`
 - Header: `Content-Type: application/json`
 - Body JSON:
@@ -76,7 +76,7 @@ Crear el Custom Menu Link **Pedidos Frutitodo** con apertura **Embedded Page (iF
 La URL debe llevar el `location` y el `token` **escritos literalmente**, sin merge tags:
 
 ```text
-https://pedidos-frutitodo.vercel.app/panel?location=UfbKDvUAPCDEaRQWYXau&token=<TOKEN>
+https://pedidos-frutitodo-eight.vercel.app/panel?location=UfbKDvUAPCDEaRQWYXau&token=<TOKEN>
 ```
 
 `UfbKDvUAPCDEaRQWYXau` es el location ID de la subcuenta COL - Frutitodo y `<TOKEN>` es el valor generado por `npm run provision:location`. Generarlo o regenerarlo con:
@@ -97,17 +97,9 @@ El panel también acepta el formato antiguo con fragmento (`/panel#location=...&
 
 Cuando el panel no reciba credenciales válidas indicará en pantalla qué falta (token, location o merge tag sin resolver), lo que permite diagnosticar el enlace sin abrir la consola.
 
-### Estado actual del enlace
+### Dominio en uso
 
-El enlace vivo en la subcuenta usa el fragmento en lugar del query:
-
-```text
-https://pedidos-frutitodo.vercel.app/panel#location=UfbKDvUAPCDEaRQWYXau&token=<TOKEN>
-```
-
-No es por preferencia: ese dominio lo sirve un proyecto de Vercel distinto al conectado a GitHub, así que todavía corre el build anterior al arreglo, y ese build solo lee el fragmento. Las dos formas funcionan en el build actual.
-
-Para consolidarlo hay que decidir cuál proyecto se queda con el dominio. El conectado a GitHub construye cada push pero no tiene variables de entorno (`/api/health` responde 500); necesita `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GHL_INGEST_SECRET` y `EMBED_TOKEN_PEPPER` con scope Production. El pepper debe ser idéntico al que generó los tokens, o ninguno validará.
+`https://pedidos-frutitodo-eight.vercel.app` es el dominio del proyecto de Vercel conectado a GitHub: despliega solo en cada push y tiene las cuatro variables de entorno con scope Production. El dominio corto `pedidos-frutitodo.vercel.app` pertenece a un proyecto anterior que sirve un build viejo; si en algún momento se retira ese proyecto y se reclama el nombre corto, hay que actualizar aquí el menu link y el Custom Webhook a la vez.
 
 ## 5. Dominio del iframe
 

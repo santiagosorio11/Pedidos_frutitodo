@@ -18,6 +18,9 @@ if (!locationId) {
   throw new Error("Usage: npm run provision:location -- --location-id <GHL_LOCATION_ID> [--name Frutitodo]");
 }
 
+/* Overridable so a domain move does not mean editing this script. */
+const panelBaseUrl = process.env.PANEL_BASE_URL?.trim() || "https://pedidos-frutitodo-eight.vercel.app";
+
 const supabase = createClient(required("SUPABASE_URL"), required("SUPABASE_SERVICE_ROLE_KEY"), {
   auth: { persistSession: false, autoRefreshToken: false },
 });
@@ -43,7 +46,7 @@ process.stdout.write(
     "Location provisioned successfully.",
     "Supabase stores only the hash, so copy the token now; it cannot be read back later.",
     "Paste this link into the GHL custom menu link:",
-    `https://pedidos-frutitodo.vercel.app/panel?location=${locationId}&token=${token}`,
+    `${panelBaseUrl}/panel?location=${locationId}&token=${token}`,
     "",
   ].join("\n"),
 );
