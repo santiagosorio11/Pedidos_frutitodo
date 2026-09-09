@@ -36,10 +36,14 @@ const { error } = await supabase.from("locations").upsert(
 
 if (error) throw error;
 
+/* The trailing newline matters: PowerShell drops an unterminated final line, which
+   silently swallowed the one value this script exists to hand over. */
 process.stdout.write(
   [
     "Location provisioned successfully.",
-    "Copy this token to the GHL custom value frutitodo_panel_token; it will not be recoverable from Supabase:",
-    token,
+    "Supabase stores only the hash, so copy the token now; it cannot be read back later.",
+    "Paste this link into the GHL custom menu link:",
+    `https://pedidos-frutitodo.vercel.app/panel?location=${locationId}&token=${token}`,
+    "",
   ].join("\n"),
 );
