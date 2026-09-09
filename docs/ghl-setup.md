@@ -79,13 +79,17 @@ La URL debe llevar el `location` y el `token` **escritos literalmente**, sin mer
 https://pedidos-frutitodo.vercel.app/panel?location=UfbKDvUAPCDEaRQWYXau&token=<TOKEN>
 ```
 
-`UfbKDvUAPCDEaRQWYXau` es el location ID de la subcuenta COL - Frutitodo y `<TOKEN>` es el valor generado por `npm run provision:location`, guardado también en el custom value `frutitodo_panel_token`. Si el token se perdió, regenerarlo:
+`UfbKDvUAPCDEaRQWYXau` es el location ID de la subcuenta COL - Frutitodo y `<TOKEN>` es el valor generado por `npm run provision:location`. Generarlo o regenerarlo con:
 
 ```powershell
 npm.cmd run provision:location -- --location-id UfbKDvUAPCDEaRQWYXau --name "COL - Frutitodo"
 ```
 
-Cada ejecución reemplaza el token anterior; hay que actualizar el enlace del menú y el custom value con el nuevo valor.
+Cada ejecución reemplaza el token anterior; hay que actualizar el enlace del menú con el nuevo valor. Supabase guarda solo el HMAC-SHA256 del token con `EMBED_TOKEN_PEPPER`, así que el valor en claro no se puede recuperar después: si se pierde, se regenera.
+
+El token no puede ser un valor inventado. En cada llamada el panel envía `Authorization: Bearer <TOKEN>` y `X-Location-Id: <LOCATION_ID>`; el servidor vuelve a calcular el HMAC y busca la fila de `locations` que coincida con ambos y esté activa. Esa fila define de qué subcuenta son los pedidos que se devuelven, así que el token es a la vez credencial y aislamiento entre locations. Un valor que no salga del script responde `401 Acceso no autorizado`.
+
+El custom value `frutitodo_panel_token` es opcional y no cumple ninguna función en tiempo de ejecución: sirve solo como lugar donde dejar anotado el token. Quien tenga la URL completa del menú puede ver y despachar los pedidos de la subcuenta, así que hay que tratarla como secreto.
 
 **No usar `{{custom_values.frutitodo_panel_token}}` en el enlace.** Los Custom Menu Links solo resuelven un conjunto reducido de merge tags y los custom values no están incluidos, así que GHL entrega el enlace sin token y el panel muestra `Enlace de acceso incompleto`. El menú vive dentro de una sola subcuenta, así que los valores literales son además más predecibles que `{{location.id}}`.
 
