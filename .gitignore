@@ -28,6 +28,3 @@ n8n_orbita_pedidos_mvp.json
 .DS_Store
 Thumbs.db
 *.log
-
-.vercel
-.env*
