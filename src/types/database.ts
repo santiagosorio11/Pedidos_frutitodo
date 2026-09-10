@@ -116,6 +116,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          amendment_count: number
           created_at: string
           customer_name: string
           customer_phone: string
@@ -127,6 +128,7 @@ export type Database = {
           ghl_contact_id: string
           id: string
           items: Json
+          last_amended_at: string | null
           last_printed_at: string | null
           location_id: string
           notes: string | null
@@ -139,6 +141,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          amendment_count?: number
           created_at?: string
           customer_name: string
           customer_phone: string
@@ -150,6 +153,7 @@ export type Database = {
           ghl_contact_id: string
           id?: string
           items: Json
+          last_amended_at?: string | null
           last_printed_at?: string | null
           location_id: string
           notes?: string | null
@@ -162,6 +166,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          amendment_count?: number
           created_at?: string
           customer_name?: string
           customer_phone?: string
@@ -173,6 +178,7 @@ export type Database = {
           ghl_contact_id?: string
           id?: string
           items?: Json
+          last_amended_at?: string | null
           last_printed_at?: string | null
           location_id?: string
           notes?: string | null
@@ -199,6 +205,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      amend_order: {
+        Args: {
+          p_customer_name: string
+          p_customer_phone: string
+          p_delivery_address: string
+          p_delivery_type: Database["public"]["Enums"]["delivery_type"]
+          p_ghl_contact_id: string
+          p_items: Json
+          p_location_id: string
+          p_notes: string
+          p_payload_hash: string
+          p_source_event_id: string
+        }
+        Returns: {
+          display_sequence: number
+          needs_reprint: boolean
+          order_id: string
+          outcome: string
+          was_amended: boolean
+        }[]
+      }
       confirm_order_print: {
         Args: {
           p_location_id: string
@@ -206,6 +233,7 @@ export type Database = {
           p_request_id: string
         }
         Returns: {
+          amendment_count: number
           created_at: string
           customer_name: string
           customer_phone: string
@@ -217,6 +245,7 @@ export type Database = {
           ghl_contact_id: string
           id: string
           items: Json
+          last_amended_at: string | null
           last_printed_at: string | null
           location_id: string
           notes: string | null
@@ -242,6 +271,7 @@ export type Database = {
           p_request_id: string
         }
         Returns: {
+          amendment_count: number
           created_at: string
           customer_name: string
           customer_phone: string
@@ -253,6 +283,7 @@ export type Database = {
           ghl_contact_id: string
           id: string
           items: Json
+          last_amended_at: string | null
           last_printed_at: string | null
           location_id: string
           notes: string | null
@@ -294,7 +325,7 @@ export type Database = {
     }
     Enums: {
       delivery_type: "domicilio" | "recogida"
-      order_event_type: "created" | "print_confirmed" | "dispatched"
+      order_event_type: "amended" | "created" | "print_confirmed" | "dispatched"
       order_status: "pending" | "printed" | "dispatched"
     }
     CompositeTypes: {

@@ -32,6 +32,11 @@ export function payloadHash(input: IngestOrderInput): string {
   return sha256(canonicalOrderPayload(input));
 }
 
+export function needsReprint(order: Order): boolean {
+  if (!order.lastAmendedAt || !order.firstPrintedAt) return false;
+  return new Date(order.lastAmendedAt).getTime() > new Date(order.firstPrintedAt).getTime();
+}
+
 export function rowToOrder(row: OrderRow): Order {
   return {
     id: row.id,
@@ -49,6 +54,8 @@ export function rowToOrder(row: OrderRow): Order {
     lastPrintedAt: row.last_printed_at,
     printCount: row.print_count,
     dispatchedAt: row.dispatched_at,
+    lastAmendedAt: row.last_amended_at,
+    amendmentCount: row.amendment_count,
   };
 }
 

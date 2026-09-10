@@ -23,6 +23,8 @@ export type Order = {
   lastPrintedAt: string | null;
   printCount: number;
   dispatchedAt: string | null;
+  lastAmendedAt: string | null;
+  amendmentCount: number;
 };
 
 export type OrderStats = {

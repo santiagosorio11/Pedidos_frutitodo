@@ -395,6 +395,19 @@
   background: #eaf0f7;
 }
 
+.amendedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid #f0c27a;
+  border-radius: 999px;
+  color: #92400e;
+  background: #fff5e6;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .deliveryBadge {
   color: var(--brand-dark);
   background: var(--brand-soft);
@@ -933,6 +946,15 @@
 
 .ticketHeader > strong {
   font-size: 12pt;
+}
+
+.ticketAmended {
+  margin: 7px 0 0;
+  padding: 4px 0;
+  border-top: 1px dashed #000;
+  border-bottom: 1px dashed #000;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .ticketMeta {

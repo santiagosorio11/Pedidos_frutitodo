@@ -143,3 +143,30 @@ Cuerpo del `POST`:
 `ghlContactId` es la llave para encontrar la oportunidad. `requestId` sirve como llave de idempotencia si n8n necesita descartar repeticiones.
 
 El envío ocurre después de responderle al panel, con `after()` de Next: el operario nunca espera a n8n. Ante un `5xx` reintenta una vez; ante un `4xx` no reintenta porque el payload no va a mejorar. Si agota los intentos lo deja en los logs de Vercel nombrando el pedido, para poder reponerlo a mano.
+
+## 7. Modificar un pedido (anexos y correcciones)
+
+`POST https://pedidos-frutitodo-eight.vercel.app/api/webhooks/ghl/orders/amendments`
+
+Mismo header `Authorization: Bearer <GHL_INGEST_SECRET>` y **el mismo cuerpo** que el endpoint de creación. La semántica es de reemplazo, no de suma: el extractor relee toda la conversación, así que el anexo llega con el pedido completo y sustituye el contenido anterior. Eso cubre por igual "agrégame dos libras de tomate" y "quita el aguacate".
+
+Busca el pedido más reciente de ese `contactId` que siga abierto (`pending` o `printed`) y:
+
+1. Reemplaza productos, cliente, entrega y observaciones.
+2. Devuelve el estado a `pending` y suma uno a `amendment_count`.
+3. Registra un evento `amended`, usando el `sourceEventId` como llave de idempotencia: un reintento no vuelve a aplicar el cambio ni infla el contador.
+
+El regreso a `pending` es deliberado. Despachar exige una impresión confirmada, así que un pedido modificado **no puede salir sin reimprimirse**. El panel lo marca con `Modificado · reimprimir` en la tarjeta y en el detalle, y el tiquete sale con la leyenda `PEDIDO MODIFICADO · DESCARTA EL TIQUETE ANTERIOR` para que nadie aliste con papel viejo.
+
+Respuestas:
+
+| Código | Cuerpo | Qué hacer en n8n |
+|---|---|---|
+| `200` | `amended: true` | Listo |
+| `200` | `duplicate: true` | Reintento; no hacer nada |
+| `404` | `no_open_order` | El contacto no tiene pedidos: crear uno con el endpoint normal |
+| `409` | `already_dispatched` | El pedido ya salió: crear uno nuevo con el endpoint normal |
+
+En n8n, las acciones **Anexo a Pedido** y las de modificación usan el mismo flujo de extracción del pedido entrante; solo cambia el nodo final de HTTP. Ante `404` o `409`, reenviar el mismo payload al endpoint de creación.
+
+Requiere aplicar las migraciones `20260910120000` y `20260910120100`.

@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { needsReprint } from "@/lib/order-utils";
 import { resolvePanelAccess } from "@/lib/panel-credentials";
 import type { CredentialIssue, PanelCredentials } from "@/lib/panel-credentials";
 import type { DeliveryType, Order, OrdersResponse, OrderStatus } from "@/types/orders";
@@ -506,6 +507,16 @@ function StatCard({ label, value, icon, accent = false }: { label: string; value
   );
 }
 
+/* A ticket printed before the change is already wrong in the picker's hands, so this
+   has to be louder than the status pill next to it. */
+function AmendedBadge() {
+  return (
+    <span className={styles.amendedBadge}>
+      <CircleAlert size={13} /> Modificado · reimprimir
+    </span>
+  );
+}
+
 function StatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span className={`${styles.statusBadge} ${styles[`status_${status}`]}`}>
@@ -540,6 +551,7 @@ function OrderCard({
 
         <div className={styles.badges}>
           <StatusBadge status={order.status} />
+          {needsReprint(order) ? <AmendedBadge /> : null}
           <span className={styles.deliveryBadge}>
             {order.deliveryType === "domicilio" ? <Truck size={13} /> : <Store size={13} />}
             {deliveryLabel(order.deliveryType)}
@@ -611,6 +623,7 @@ function OrderModal({
         <div className={styles.modalBody}>
           <div className={styles.badges}>
             <StatusBadge status={order.status} />
+            {needsReprint(order) ? <AmendedBadge /> : null}
             <span className={styles.deliveryBadge}>{deliveryLabel(order.deliveryType)}</span>
           </div>
           <dl className={styles.detailInfo}>
@@ -696,6 +709,9 @@ function PrintTicket({ order }: { order: Order }) {
         <div className={styles.ticketBrand}>FRUTITODO</div>
         <h1>ORDEN DE ALISTAMIENTO</h1>
         <strong>{order.orderNumber}</strong>
+        {needsReprint(order) ? (
+          <p className={styles.ticketAmended}>PEDIDO MODIFICADO · DESCARTA EL TIQUETE ANTERIOR</p>
+        ) : null}
       </header>
       <dl className={styles.ticketMeta}>
         <div><dt>Recibido</dt><dd>{formatDate(order.receivedAt)}</dd></div>

@@ -72,6 +72,38 @@ test("renders the 80 mm ticket and asks for explicit print confirmation", async 
   await expect(ticket.getByText("Aguacate Hass")).toBeVisible();
 });
 
+test("flags an order amended after it was printed", async ({ page }) => {
+  await page.route("**/api/orders?**", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        orders: [
+          {
+            ...order,
+            status: "pending",
+            firstPrintedAt: "2026-09-09T18:00:00.000Z",
+            lastPrintedAt: "2026-09-09T18:00:00.000Z",
+            printCount: 1,
+            lastAmendedAt: "2026-09-09T18:30:00.000Z",
+            amendmentCount: 1,
+          },
+        ],
+        stats: { active: 1, newToday: 1, awaitingDispatch: 0 },
+        pagination: { page: 0, pageSize: 50, total: 1, totalPages: 1 },
+      }),
+    });
+  });
+
+  await page.goto("/panel?location=frutitodo-test&token=secret-test-token");
+  await expect(page.getByText("Modificado · reimprimir").first()).toBeVisible();
+
+  await page.getByRole("button", { name: "Reimprimir", exact: true }).click();
+  await page.emulateMedia({ media: "print" });
+  await expect(
+    page.locator(".print-host").getByText("PEDIDO MODIFICADO · DESCARTA EL TIQUETE ANTERIOR")
+  ).toBeVisible();
+});
+
 test("filters and opens the complete order detail", async ({ page }) => {
   await page.goto("/panel#location=frutitodo-test&token=secret-test-token");
   await page.getByRole("button", { name: /Ver detalle/ }).click();
