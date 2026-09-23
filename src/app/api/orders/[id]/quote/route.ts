@@ -1,6 +1,6 @@
 import { after } from "next/server";
 import type { Json } from "@/types/database";
-import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, unauthorized, describeError } from "@/lib/api-response";
 import { GhlApiError, isGhlApiConfigured, sendContactMessage, updateContactCustomFields } from "@/lib/ghl-api";
 import { rowToOrder } from "@/lib/order-utils";
 import { getPanelAccess } from "@/lib/panel-auth";
@@ -128,7 +128,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
     return noStoreJson({ order: rowToOrder(delivered), sent: true });
   } catch (error) {
-    console.error("Quote failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Quote failed", describeError(error));
     return serverError();
   }
 }

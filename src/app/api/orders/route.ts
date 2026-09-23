@@ -1,5 +1,5 @@
 import type { Json } from "@/types/database";
-import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, unauthorized, describeError } from "@/lib/api-response";
 import { formatOrderNumber, payloadHash, rowToOrder, startOfTodayInBogota } from "@/lib/order-utils";
 import { getPanelAccess } from "@/lib/panel-auth";
 import { manualOrderSchema, ordersQuerySchema } from "@/lib/schemas";
@@ -94,7 +94,7 @@ export async function GET(request: Request) {
 
     return noStoreJson(response);
   } catch (error) {
-    console.error("Orders query failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Orders query failed", describeError(error));
     return serverError();
   }
 }
@@ -150,7 +150,7 @@ export async function POST(request: Request) {
       { status: result.was_created ? 201 : 200 },
     );
   } catch (error) {
-    console.error("Manual order failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Manual order failed", describeError(error));
     return serverError();
   }
 }

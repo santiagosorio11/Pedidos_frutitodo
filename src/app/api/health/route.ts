@@ -1,4 +1,4 @@
-import { noStoreJson, serverError } from "@/lib/api-response";
+import { noStoreJson, serverError, describeError } from "@/lib/api-response";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export const runtime = "nodejs";
@@ -9,7 +9,7 @@ export async function GET() {
     if (error) throw error;
     return noStoreJson({ ok: true, service: "pedidos-frutitodo" });
   } catch (error) {
-    console.error("Health check failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Health check failed", describeError(error));
     return serverError();
   }
 }

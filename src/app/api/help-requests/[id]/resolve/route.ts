@@ -1,4 +1,4 @@
-import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, unauthorized, describeError } from "@/lib/api-response";
 import { rowToHelpRequest } from "@/lib/order-utils";
 import { getPanelAccess } from "@/lib/panel-auth";
 import { actionRequestSchema } from "@/lib/schemas";
@@ -42,7 +42,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (!existing) return noStoreJson({ error: "not_found", message: "Solicitud no encontrada" }, { status: 404 });
     return noStoreJson({ helpRequest: rowToHelpRequest(existing) });
   } catch (error) {
-    console.error("Help request resolution failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Help request resolution failed", describeError(error));
     return serverError();
   }
 }

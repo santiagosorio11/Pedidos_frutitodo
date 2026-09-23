@@ -1,4 +1,4 @@
-import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, unauthorized, describeError } from "@/lib/api-response";
 import { normalizeSearch, pickBestMatch, rowToProduct } from "@/lib/catalog";
 import type { MatchCandidate } from "@/lib/catalog";
 import { getPanelAccess } from "@/lib/panel-auth";
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const matches = names.map((name, index) => pickBestMatch(name, candidates[index]));
     return noStoreJson({ matches });
   } catch (error) {
-    console.error("Product match failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Product match failed", describeError(error));
     return serverError();
   }
 }

@@ -3,7 +3,7 @@ import { actionRequestSchema } from "@/lib/schemas";
 import { notifyOrderEvent } from "@/lib/outbound-webhook";
 import { getPanelAccess } from "@/lib/panel-auth";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, unauthorized, describeError } from "@/lib/api-response";
 import { rowToOrder } from "@/lib/order-utils";
 
 export const runtime = "nodejs";
@@ -47,7 +47,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
     return noStoreJson({ order });
   } catch (error) {
-    console.error("Print confirmation failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Print confirmation failed", describeError(error));
     return serverError();
   }
 }

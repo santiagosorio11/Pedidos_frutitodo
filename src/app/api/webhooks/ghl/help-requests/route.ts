@@ -1,4 +1,4 @@
-import { invalidPayload, noStoreJson, serverError } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, describeError } from "@/lib/api-response";
 import { rowToHelpRequest } from "@/lib/order-utils";
 import { helpRequestIngestSchema } from "@/lib/schemas";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       { status: row.request_count > 1 ? 200 : 201 },
     );
   } catch (error) {
-    console.error("Help request ingestion failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Help request ingestion failed", describeError(error));
     return serverError();
   }
 }

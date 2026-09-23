@@ -1,4 +1,4 @@
-import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, unauthorized, describeError } from "@/lib/api-response";
 import { rowToHelpRequest } from "@/lib/order-utils";
 import { getPanelAccess } from "@/lib/panel-auth";
 import { helpRequestsQuerySchema } from "@/lib/schemas";
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
     const response: HelpRequestsResponse = { helpRequests: (data || []).map(rowToHelpRequest) };
     return noStoreJson(response);
   } catch (error) {
-    console.error("Help requests query failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Help requests query failed", describeError(error));
     return serverError();
   }
 }

@@ -28,3 +28,14 @@ export function serverError(): NextResponse {
     { status: 500 },
   );
 }
+
+/* Supabase errors are plain objects, not Error instances; without this every database
+   failure was logged as "Unknown error" and could only be diagnosed by reproducing it. */
+export function describeError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === "object" && "message" in error && typeof error.message === "string") {
+    const code = "code" in error && typeof error.code === "string" ? ` (${error.code})` : "";
+    return `${error.message}${code}`;
+  }
+  return "Unknown error";
+}

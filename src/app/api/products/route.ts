@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, unauthorized, describeError } from "@/lib/api-response";
 import { normalizeSearch, rowToProduct } from "@/lib/catalog";
 import { getPanelAccess } from "@/lib/panel-auth";
 import { productCreateSchema, productsQuerySchema } from "@/lib/schemas";
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     };
     return noStoreJson(response);
   } catch (error) {
-    console.error("Products query failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Products query failed", describeError(error));
     return serverError();
   }
 }
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     if (error) throw error;
     return noStoreJson({ product: rowToProduct(data) }, { status: 201 });
   } catch (error) {
-    console.error("Product creation failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Product creation failed", describeError(error));
     return serverError();
   }
 }

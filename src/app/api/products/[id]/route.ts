@@ -1,4 +1,4 @@
-import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, unauthorized, describeError } from "@/lib/api-response";
 import { normalizeSearch, rowToProduct } from "@/lib/catalog";
 import { getPanelAccess } from "@/lib/panel-auth";
 import { productUpdateSchema } from "@/lib/schemas";
@@ -42,7 +42,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
     return noStoreJson({ product: rowToProduct(data) });
   } catch (error) {
-    console.error("Product update failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Product update failed", describeError(error));
     return serverError();
   }
 }

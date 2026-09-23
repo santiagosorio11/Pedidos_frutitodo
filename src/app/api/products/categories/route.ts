@@ -1,4 +1,4 @@
-import { noStoreJson, serverError, unauthorized } from "@/lib/api-response";
+import { noStoreJson, serverError, unauthorized, describeError } from "@/lib/api-response";
 import { getPanelAccess } from "@/lib/panel-auth";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import type { ProductCategory } from "@/types/orders";
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     }));
     return noStoreJson({ categories });
   } catch (error) {
-    console.error("Product categories failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Product categories failed", describeError(error));
     return serverError();
   }
 }

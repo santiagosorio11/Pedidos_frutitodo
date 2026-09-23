@@ -1,5 +1,5 @@
 import type { Json } from "@/types/database";
-import { invalidPayload, noStoreJson, serverError } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, describeError } from "@/lib/api-response";
 import { payloadHash, formatOrderNumber } from "@/lib/order-utils";
 import { ingestOrderSchema } from "@/lib/schemas";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       { status: result.was_created ? 201 : 200 },
     );
   } catch (error) {
-    console.error("Order ingestion failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Order ingestion failed", describeError(error));
     return serverError();
   }
 }

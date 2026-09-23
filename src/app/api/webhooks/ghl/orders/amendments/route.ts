@@ -1,5 +1,5 @@
 import type { Json } from "@/types/database";
-import { invalidPayload, noStoreJson, serverError } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError, describeError } from "@/lib/api-response";
 import { formatOrderNumber, payloadHash } from "@/lib/order-utils";
 import { ingestOrderSchema } from "@/lib/schemas";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Order amendment failed", error instanceof Error ? error.message : "Unknown error");
+    console.error("Order amendment failed", describeError(error));
     return serverError();
   }
 }
