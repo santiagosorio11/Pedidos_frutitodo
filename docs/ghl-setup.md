@@ -66,7 +66,8 @@ El prompt completo está en [prompt-agenteia.md](prompt-agenteia.md) (menos de 2
 4. **Cualquier afirmación** del cliente confirma ("sí", "correcto", "dale", "listo", 👍…). Si agrega o cambia algo, la IA vuelve a mostrar el resumen completo.
 5. Con la confirmación ejecuta **una sola vez** la acción **"Pedido Confirmado"** (workflow 4.1).
 6. Un cambio después de confirmar es un **ajuste al mismo pedido** (conserva el número): la IA muestra el resumen completo ajustado, espera la afirmación y ejecuta **"Anexo a Pedido"** (workflow 4.2). Si el pedido ya estaba impreso, el panel lo devuelve a *Nuevos* con la marca **Ajuste · reimprimir**; si ya se despachó, n8n lo registra como pedido nuevo.
-7. **"Escalar Incidencia"** y **"Solicitar Atención Humana"** deben agregar la etiqueta `requiere_ayuda` (workflow 4.3).
+7. **"Solicitar Ayuda"** (incidencias, estado del pedido, hablar con una persona) debe agregar la etiqueta `requiere_ayuda` (workflow 4.3).
+9. Forma de pago en **todos** los pedidos; si es efectivo, con qué billete paga. n8n lo guarda como "Efectivo, paga con $50.000" y la cotización y la comanda muestran el cambio.
 8. La IA no da precios ni totales: la cotización la envía una persona desde el panel.
 
 ## 4. Workflows de GHL
@@ -101,7 +102,7 @@ Igual que el anterior, con `"action": "amend"`. n8n llama al endpoint de ajustes
 
 ### 4.3 Cliente requiere ayuda
 
-- **Disparador:** *Contact Tag Added* = `requiere_ayuda` (la agregan las acciones "Escalar Incidencia" y "Solicitar Atención Humana" del agente)
+- **Disparador:** *Contact Tag Added* = `requiere_ayuda` (la agrega la acción "Solicitar Ayuda" del agente)
 - **Acción 1:** Custom Webhook a `https://<tu-n8n>/webhook/frutitodo-ayuda`
 
 ```json

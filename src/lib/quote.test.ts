@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeQuote, convertQuantity, formatPesos, formatQuoteMessage, normalizeUnit } from "@/lib/quote";
+import { cashChange, computeQuote, convertQuantity, formatPesos, formatQuoteMessage, normalizeUnit } from "@/lib/quote";
 
 describe("computeQuote", () => {
   it("rounds each line to whole pesos and adds the delivery fee", () => {
@@ -71,5 +71,20 @@ describe("formatQuoteMessage", () => {
     expect(message).toContain(`*Total: ${formatPesos(30_500)}*`);
     expect(message).toContain("Método de pago: Transferencia");
     expect(message).toContain("Cambiamos el aguacate");
+  });
+});
+
+describe("cashChange", () => {
+  it("reads the bill the customer pays with and computes the change", () => {
+    expect(cashChange("Efectivo, paga con $50.000", 31_500)).toEqual({ tendered: 50_000, change: 18_500 });
+    expect(cashChange("efectivo billete de 100 mil", 64_000)).toEqual({ tendered: 100_000, change: 36_000 });
+    expect(cashChange("Efectivo paga con 20000", 20_000)).toEqual({ tendered: 20_000, change: 0 });
+  });
+
+  it("stays quiet when it is not cash, there is no bill or it does not cover the total", () => {
+    expect(cashChange("Transferencia", 10_000)).toBeNull();
+    expect(cashChange("Efectivo", 10_000)).toBeNull();
+    expect(cashChange("Efectivo, paga con $20.000", 25_000)).toBeNull();
+    expect(cashChange(null, 10_000)).toBeNull();
   });
 });

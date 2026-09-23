@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playAlert, unlockAlerts } from "@/lib/alert-sound";
-import { formatPesos } from "@/lib/quote";
+import { cashChange, formatPesos } from "@/lib/quote";
 import { DEFAULT_GHL_APP_URL, ghlConversationUrl, needsReprint } from "@/lib/order-utils";
 import { resolvePanelAccess } from "@/lib/panel-credentials";
 import type { CredentialIssue, PanelCredentials } from "@/lib/panel-credentials";
@@ -1396,6 +1396,7 @@ function OperatorModal({
 }
 
 function PrintTicket({ order, operator }: { order: Order; operator: string | null }) {
+  const cash = order.quote ? cashChange(order.paymentMethod, order.quote.total) : null;
   return (
     <article className={styles.ticket}>
       <header className={styles.ticketHeader}>
@@ -1445,6 +1446,12 @@ function PrintTicket({ order, operator }: { order: Order; operator: string | nul
               <div><dt>Domicilio</dt><dd>{formatPesos(order.quote.deliveryFee)}</dd></div>
             ) : null}
             <div className={styles.ticketTotal}><dt>TOTAL</dt><dd>{formatPesos(order.quote.total)}</dd></div>
+            {cash ? (
+              <>
+                <div><dt>Paga con</dt><dd>{formatPesos(cash.tendered)}</dd></div>
+                <div className={styles.ticketTotal}><dt>CAMBIO</dt><dd>{formatPesos(cash.change)}</dd></div>
+              </>
+            ) : null}
           </dl>
         </section>
       ) : null}

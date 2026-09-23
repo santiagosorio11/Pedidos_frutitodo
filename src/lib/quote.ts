@@ -95,6 +95,21 @@ function formatQuantity(quantity: number, unit: string | null): string {
   return unit ? `${number} ${unit}` : number;
 }
 
+/**
+ * Change to bring for a cash payment, read from the payment method the agent collected
+ * ("Efectivo, paga con $50.000" or "efectivo billete de 50 mil"). Null when it is not cash,
+ * no bill was given, or the bill does not cover the total.
+ */
+export function cashChange(paymentMethod: string | null, total: number): { tendered: number; change: number } | null {
+  if (!paymentMethod || !/efectivo/i.test(paymentMethod)) return null;
+  const match = paymentMethod.match(/(\d{1,3}(?:[.,\s]\d{3})+|\d+)\s*(mil|k)?/i);
+  if (!match) return null;
+  let tendered = Number(match[1].replace(/[.,\s]/g, ""));
+  if (match[2] || tendered < 1000) tendered *= 1000;
+  if (!tendered || tendered < total) return null;
+  return { tendered, change: tendered - total };
+}
+
 /** The WhatsApp message the customer receives; also shown as a preview in the panel. */
 export function formatQuoteMessage(order: Pick<Order, "orderNumber" | "customerName" | "paymentMethod" | "deliveryType">, quote: Quote): string {
   const firstName = order.customerName.trim().split(/\s+/)[0] || "";
@@ -112,6 +127,8 @@ export function formatQuoteMessage(order: Pick<Order, "orderNumber" | "customerN
   if (quote.deliveryFee > 0) lines.push(`Domicilio: ${formatPesos(quote.deliveryFee)}`);
   lines.push(`*Total: ${formatPesos(quote.total)}*`);
   if (order.paymentMethod) lines.push(`Método de pago: ${order.paymentMethod}`);
+  const cash = cashChange(order.paymentMethod, quote.total);
+  if (cash) lines.push(`Pagas con ${formatPesos(cash.tendered)}, tu cambio: ${formatPesos(cash.change)}`);
   if (quote.notes) lines.push("", quote.notes);
   lines.push("", order.deliveryType === "domicilio" ? "Te avisamos cuando salga tu domicilio 🛵" : "Te avisamos cuando esté listo para recoger 🛍️");
   return lines.join("\n");
