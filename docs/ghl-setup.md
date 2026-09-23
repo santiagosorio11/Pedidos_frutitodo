@@ -98,7 +98,7 @@ Todos usan un **Custom Webhook** `POST` con estos headers:
 
 ### 4.2 Anexo a Pedido
 
-Igual que el anterior, con `"action": "amend"`. n8n llama al endpoint de ajustes. Si el contacto no tiene un pedido abierto (`404`) o el pedido ya salió (`409`), lo registra como pedido nuevo.
+Igual que el anterior, con `"action": "amend"`. `action` puede ir en el body o como header `action: amend` (o `create`); si no llega, n8n asume `create`. n8n llama al endpoint de ajustes. Si el contacto no tiene un pedido abierto (`404`) o el pedido ya salió (`409`), lo registra como pedido nuevo.
 
 ### 4.3 Cliente requiere ayuda
 
