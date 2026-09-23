@@ -620,16 +620,6 @@
   text-decoration: none;
 }
 
-.chatNewTab {
-  display: inline-grid;
-  min-width: 30px;
-  place-items: center;
-  border: 1px solid #d3deea;
-  border-radius: 8px;
-  color: #52627b;
-  background: white;
-}
-
 .helpCardOpen {
   border-color: #f1a9b1;
 }

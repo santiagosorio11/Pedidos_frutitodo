@@ -187,7 +187,7 @@ Cada ejecución reemplaza el token anterior, así que hay que actualizar el enla
 
 ### Botón "Abrir conversación"
 
-Usa `target="_top"` para cambiar la pantalla de GHL a la conversación sin salir de Órbita. Junto a él hay un icono ↗ que la abre en una pestaña nueva, como respaldo si GHL bloquea la navegación desde el iframe. El dominio se puede cambiar con `NEXT_PUBLIC_GHL_APP_URL` (por defecto `https://app.iaorbita.com`).
+Usa `target="_top"`: la ventana de GHL cambia a la conversación sin abrir pestañas nuevas. El dominio se puede cambiar con `NEXT_PUBLIC_GHL_APP_URL` (por defecto `https://app.iaorbita.com`).
 
 ### Dominio en uso
 

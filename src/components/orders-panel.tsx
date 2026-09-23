@@ -10,7 +10,6 @@ import {
   CircleAlert,
   Clock3,
   CreditCard,
-  ExternalLink,
   IdCard,
   LifeBuoy,
   MapPin,
@@ -790,24 +789,14 @@ function StatusBadge({ status }: { status: OrderStatus }) {
   );
 }
 
-/* `_top` swaps the GHL screen to the chat without leaving the app; the small icon opens it
-   in a new tab for browsers or GHL setups that block navigation from the iframe. */
+/* `_top` swaps the GHL window itself to the chat: the operator stays in the same tab,
+   never a new one. */
 function ConversationLink({ url, variant = "inline" }: { url: string | null; variant?: "inline" | "button" }) {
   if (!url) return null;
   return (
     <span className={variant === "button" ? styles.chatButtonGroup : styles.chatLinkGroup}>
       <a href={url} target="_top" className={variant === "button" ? styles.chatButton : styles.chatLink}>
         <MessageCircle size={15} /> Abrir conversación
-      </a>
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.chatNewTab}
-        aria-label="Abrir conversación en una pestaña nueva"
-        title="Abrir en una pestaña nueva"
-      >
-        <ExternalLink size={14} />
       </a>
     </span>
   );
