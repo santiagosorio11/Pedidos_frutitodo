@@ -7,7 +7,7 @@ Cliente (WhatsApp)
    │
    ▼
 IA de GHL: pide los datos, lee el resumen, el cliente confirma
-   │  dispara "Pedido confirmado" (nuevo) o "Ajustar pedido" (cambio)
+   │  ejecuta "Pedido Confirmado" (nuevo) o "Anexo a Pedido" (ajuste)
    ▼
 Workflow GHL → Custom Webhook → n8n  (frutitodo-pedido-ia.json)
    1. busca la conversación y lee sus últimos mensajes (API de GHL)
@@ -44,40 +44,30 @@ Agregan a los pedidos: cédula, método de pago, conversación de GHL, origen (I
 
 | Nombre | Clave | Tipo | Quién lo escribe |
 |---|---|---|---|
-| Pedido resumen | `pedido_resumen` | Texto largo | n8n, con el pedido ya extraído y formateado (la IA puede llenarlo, pero no es la fuente) |
-| Cédula | `cedula` | Texto | n8n |
+| Pedido resumen | `pedido_resumen` | Texto largo | n8n, con el pedido ya extraído y formateado |
+| Documento de identidad | `documento_de_identidad` | Texto | n8n (la IA lo lee, no lo escribe) |
+| Dirección de envío | `direccion_de_envio` | Texto largo | n8n, solo en domicilios (la IA lo lee, no lo escribe) |
 | Método de pago | `metodo_pago` | Texto | n8n |
 | Último pedido número | `ultimo_pedido_numero` | Texto | n8n (`FT-000123`) |
 | Último pedido estado | `ultimo_pedido_estado` | Texto | n8n: `nuevo`, `en_preparacion`, `despachado` |
 | Último pedido total | `ultimo_pedido_total` | Texto | El panel, al enviar la cotización |
 
-Si GHL genera claves distintas, cámbialas en el nodo **Config** de cada workflow (`CF_*`). Si la API ignora la clave, usa el ID del campo (Configuración → Campos personalizados).
+La IA **no escribe ningún campo**: solo los lee al empezar (`{{contact.documento_de_identidad}}`, `{{contact.direccion_de_envio}}`) para no volver a preguntarlos. Quita del agente las acciones de "actualizar campo" de resumen y documento. Si GHL genera claves distintas, cámbialas en el nodo **Config** de cada workflow (`CF_*`). Si la API ignora la clave, usa el ID del campo (Configuración → Campos personalizados).
 
 Los campos `pedido_evento_id`, `pedido_productos_json`, `pedido_tipo_entrega`, `pedido_direccion` y `pedido_observaciones` del flujo anterior dejan de usarse, porque ahora n8n hace la extracción.
 
-## 3. Reglas del agente de IA
+## 3. Prompt del agente
 
-1. **Primer mensaje:** bienvenida y aceptación de la política de tratamiento de datos. Si el cliente acepta, agregar la etiqueta `acepto_tratamiento_datos`.
-2. **Recolectar:** nombre completo, cédula, teléfono, productos con cantidad, unidad y preparación (por ejemplo "2 kg pechuga troceada"), domicilio o recogida, dirección completa con barrio, método de pago y observaciones.
-3. **Resumen:** mostrarlo al cliente y pedir confirmación explícita. El formato sugerido es:
-   ```
-   Cliente: … | Cédula: … | Teléfono: …
-   Entrega: Domicilio – Calle … , barrio … (o: Recoge en tienda)
-   Pago: Efectivo
-   Productos:
-   - 1 kg banano criollo
-   - 2 kg pechuga de pollo troceada
-   Observaciones: …
-   ```
-4. **Después del "sí":** disparar una sola vez el workflow **Pedido confirmado**. No hace falta que la IA guarde el resumen: n8n lee los últimos mensajes de la conversación y de ahí saca el pedido. Por eso el resumen confirmado debe quedar escrito **en el chat**, dentro de los últimos mensajes.
-5. **Ajustes:** si el cliente ya tiene un pedido que no ha salido (`ultimo_pedido_estado` es `nuevo` o `en_preparacion`) y quiere cambiarlo, el pedido **no es nuevo**. Es un ajuste al pedido actual y **conserva su número**. La IA debe:
-   - rehacer el resumen **completo** con el cambio incluido, no solo la diferencia;
-   - decirle al cliente que se trata de un ajuste a su pedido actual;
-   - mostrarlo en el chat, esperar el "sí" y disparar **Ajustar pedido**.
-   Si el pedido ya estaba impreso, el panel lo devuelve a *Nuevos* con la marca **Ajuste · reimprimir**. El tiquete sale con `AJUSTE AL PEDIDO FT-… · DESCARTA EL TIQUETE ANTERIOR`.
-6. **Pedido ya despachado:** si el estado es `despachado`, un cambio se registra como pedido nuevo. n8n lo hace solo, porque el panel responde `409`.
-7. **La IA no da precios ni totales.** La cotización la arma y envía una persona desde el panel.
-8. **Pedir ayuda:** cuando la IA no pueda resolver algo, su acción de handover debe agregar la etiqueta `requiere_ayuda`.
+El prompt completo está en [prompt-agenteia.md](prompt-agenteia.md) (menos de 2000 palabras). Lo que importa para la integración:
+
+1. La **cédula es obligatoria**; si no está en el contacto, la IA la pide antes del resumen.
+2. La IA **no guarda campos** del contacto; n8n los escribe después de extraer el pedido.
+3. El resumen va en **un solo mensaje con todos los datos** (también los que venían del contacto, como cédula o dirección), porque n8n arma el pedido leyendo los últimos mensajes.
+4. **Cualquier afirmación** del cliente confirma ("sí", "correcto", "dale", "listo", 👍…). Si agrega o cambia algo, la IA vuelve a mostrar el resumen completo.
+5. Con la confirmación ejecuta **una sola vez** la acción **"Pedido Confirmado"** (workflow 4.1).
+6. Un cambio después de confirmar es un **ajuste al mismo pedido** (conserva el número): la IA muestra el resumen completo ajustado, espera la afirmación y ejecuta **"Anexo a Pedido"** (workflow 4.2). Si el pedido ya estaba impreso, el panel lo devuelve a *Nuevos* con la marca **Ajuste · reimprimir**; si ya se despachó, n8n lo registra como pedido nuevo.
+7. **"Escalar Incidencia"** y **"Solicitar Atención Humana"** deben agregar la etiqueta `requiere_ayuda` (workflow 4.3).
+8. La IA no da precios ni totales: la cotización la envía una persona desde el panel.
 
 ## 4. Workflows de GHL
 
@@ -86,7 +76,7 @@ Todos usan un **Custom Webhook** `POST` con estos headers:
 - `Content-Type: application/json`
 - `x-frutitodo-secret: <INBOUND_SECRET>`, el mismo valor que pongas en el nodo Config de n8n.
 
-### 4.1 Pedido confirmado
+### 4.1 Pedido Confirmado
 
 - **Disparador:** la acción *Trigger Workflow* del agente. No agregar un segundo disparador automático.
 - **URL:** `https://<tu-n8n>/webhook/frutitodo-pedido`
@@ -105,13 +95,13 @@ Todos usan un **Custom Webhook** `POST` con estos headers:
 
 `resumen` es opcional: si la IA sí guarda un resumen, puedes mandarlo (`{{contact.pedido_resumen}}`) y la LLM lo usa como apoyo, pero **lo que manda es la conversación**. n8n lee los últimos `MESSAGE_LIMIT` mensajes (10 por defecto, configurable en el nodo Config). Si los pedidos son largos y el resumen confirmado queda fuera de esa ventana, súbelo a 20 o 30.
 
-### 4.2 Ajustar pedido
+### 4.2 Anexo a Pedido
 
 Igual que el anterior, con `"action": "amend"`. n8n llama al endpoint de ajustes. Si el contacto no tiene un pedido abierto (`404`) o el pedido ya salió (`409`), lo registra como pedido nuevo.
 
 ### 4.3 Cliente requiere ayuda
 
-- **Disparador:** *Contact Tag Added* = `requiere_ayuda`
+- **Disparador:** *Contact Tag Added* = `requiere_ayuda` (la agregan las acciones "Escalar Incidencia" y "Solicitar Atención Humana" del agente)
 - **Acción 1:** Custom Webhook a `https://<tu-n8n>/webhook/frutitodo-ayuda`
 
 ```json

@@ -8,7 +8,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "486021b7-127d-4bf1-b283-e7bb3281ed75",
+      "id": "9e53274e-4b08-4d53-8faa-85d0818ec475",
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -16,86 +16,92 @@
         0,
         300
       ],
-      "webhookId": "295e0a57-b424-40d1-bc6c-8955ea6f5d92"
+      "webhookId": "ac3e144b-cbd7-4a3e-ba57-ed768957589f"
     },
     {
       "parameters": {
         "assignments": {
           "assignments": [
             {
-              "id": "059392dd-7e8c-494e-bf01-6b0882091c76",
+              "id": "40128814-df74-4e2a-8bd7-401860a486ed",
               "name": "INBOUND_SECRET",
               "value": "REEMPLAZAR (el mismo valor que pones en el header x-frutitodo-secret del Custom Webhook de GHL)",
               "type": "string"
             },
             {
-              "id": "1715782a-8fb5-48c6-8d42-83827c95fec1",
+              "id": "04366f8f-e488-4a40-9d79-f00f91785460",
               "name": "GHL_TOKEN",
               "value": "pit-REEMPLAZAR (Private Integration token de la subcuenta)",
               "type": "string"
             },
             {
-              "id": "1b847af9-6673-4ef9-a44c-fa630907f2ba",
+              "id": "df969562-f336-462c-987a-4816e1d9cd98",
               "name": "APP_URL",
               "value": "https://pedidos-frutitodo-eight.vercel.app",
               "type": "string"
             },
             {
-              "id": "1b93b254-c598-4c3b-b05d-a151c70764a4",
+              "id": "0a068833-cc40-4449-afe4-4606264952c6",
               "name": "APP_INGEST_SECRET",
               "value": "REEMPLAZAR (mismo valor que GHL_INGEST_SECRET en Vercel)",
               "type": "string"
             },
             {
-              "id": "27668f7b-7cf2-4c05-8bd7-7bcbef766c03",
+              "id": "ad46e739-fa51-46f9-af33-172b42595c96",
               "name": "OPENAI_API_KEY",
               "value": "sk-REEMPLAZAR",
               "type": "string"
             },
             {
-              "id": "6cb6970d-dba2-46c8-8d2e-07e78a70838e",
+              "id": "dc7b9202-ab49-4bb6-a5e5-b132404dd70c",
               "name": "OPENAI_MODEL",
               "value": "gpt-5.6-luna",
               "type": "string"
             },
             {
-              "id": "41753598-47c1-47c6-bd87-a78d06a3c005",
+              "id": "d0191cdd-9810-42bc-b2d2-1136713d1b83",
               "name": "SEND_CONFIRMATION",
               "value": "false",
               "type": "string"
             },
             {
-              "id": "4557a4b4-4ef9-4818-9d24-98bc09481a1d",
+              "id": "452c4bee-f1c8-449a-94eb-af98752fdea5",
               "name": "MESSAGE_LIMIT",
               "value": "10",
               "type": "string"
             },
             {
-              "id": "63289dee-57fe-45b8-b929-f156c94b307e",
+              "id": "f5a2696c-2149-4e52-9a46-e10655b59a6a",
               "name": "CF_PEDIDO_RESUMEN",
               "value": "pedido_resumen",
               "type": "string"
             },
             {
-              "id": "4cdcdee2-b938-49d3-ab64-14a4c2241bb5",
+              "id": "06a976d0-877c-407a-be08-187b8ed1bf7d",
               "name": "CF_CEDULA",
-              "value": "cedula",
+              "value": "documento_de_identidad",
               "type": "string"
             },
             {
-              "id": "75ecedca-5dc6-4205-b117-c5c4cc60c0d1",
+              "id": "a88e7238-e1a5-4d31-b20a-3597861e87d0",
+              "name": "CF_DIRECCION",
+              "value": "direccion_de_envio",
+              "type": "string"
+            },
+            {
+              "id": "b7e5055f-9a81-4918-a6a0-f8ec6ae7d866",
               "name": "CF_METODO_PAGO",
               "value": "metodo_pago",
               "type": "string"
             },
             {
-              "id": "efd041c8-8bd2-497f-8687-5e9c44d447cc",
+              "id": "ab3d01eb-3260-4ebf-94d1-c4034c0cd356",
               "name": "CF_ULTIMO_PEDIDO_NUMERO",
               "value": "ultimo_pedido_numero",
               "type": "string"
             },
             {
-              "id": "768a929c-fc18-4d1f-981d-aa6f2087486d",
+              "id": "7578a96b-ac48-45be-b349-aa651144aad6",
               "name": "CF_ULTIMO_PEDIDO_ESTADO",
               "value": "ultimo_pedido_estado",
               "type": "string"
@@ -104,7 +110,7 @@
         },
         "options": {}
       },
-      "id": "0bd58cb7-b487-4ca9-b322-7a9f7dffc56b",
+      "id": "ee4d5fac-db94-4f98-b444-98d1371c2bd9",
       "name": "Config",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -126,7 +132,7 @@
           },
           "conditions": [
             {
-              "id": "53b95fb5-f1a7-4f86-ae80-dee49404f60f",
+              "id": "4a6b4b49-4669-47f1-9af3-a4871d484336",
               "leftValue": "={{ $('Webhook').item.json.headers['x-frutitodo-secret'] }}",
               "rightValue": "={{ $('Config').item.json.INBOUND_SECRET }}",
               "operator": {
@@ -139,7 +145,7 @@
         },
         "options": {}
       },
-      "id": "f7341313-a252-4c58-8be7-d272a05092b3",
+      "id": "8990bfa1-02eb-4e7c-8b6b-24887b74dc97",
       "name": "¿Secreto válido?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -156,7 +162,7 @@
           "responseCode": 401
         }
       },
-      "id": "f2b3cf64-5079-4e4f-a312-3116a1e14be7",
+      "id": "dc58686f-0615-4987-92f3-5023d965a2b1",
       "name": "401 No autorizado",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
@@ -169,7 +175,7 @@
       "parameters": {
         "jsCode": "// Body enviado por el Custom Webhook de GHL (ver docs/ghl-setup.md).\nconst body = $('Webhook').first().json.body || {};\nconst clean = (value) => (typeof value === 'string' ? value.trim() : '');\nconst action = clean(body.action).toLowerCase() === 'amend' ? 'amend' : 'create';\nreturn [{\n  json: {\n    action,\n    locationId: clean(body.locationId),\n    contactId: clean(body.contactId),\n    contactName: clean(body.contactName),\n    contactPhone: clean(body.contactPhone),\n    // Opcional: la fuente principal es la conversación; el resumen del agente solo ayuda.\n    resumen: clean(body.resumen),\n  },\n}];\n"
       },
-      "id": "8ba3ab11-1407-46f9-b703-019cdff62951",
+      "id": "1fb1fa33-0b83-4bf2-9cce-3b337eea2286",
       "name": "Normalizar entrada",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -221,7 +227,7 @@
           }
         }
       },
-      "id": "003aede5-2821-4ea4-b832-8787383e4d2f",
+      "id": "3f58a015-4374-4cc3-8d46-f74b269b2eb7",
       "name": "Buscar conversación GHL",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -269,7 +275,7 @@
           }
         }
       },
-      "id": "fce5bd91-59f2-4981-8f09-4b1fdcdf6a17",
+      "id": "09017395-1444-410f-b896-c32ab3537ee4",
       "name": "Leer últimos mensajes",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -282,7 +288,7 @@
       "parameters": {
         "jsCode": "// No dependemos de que el agente llene bien un campo: leemos lo que realmente se habló.\nconst input = $('Normalizar entrada').first().json;\nconst response = $input.first().json;\nconst raw = response.body?.messages;\n// GHL responde { messages: { messages: [...] } }; se aceptan también listas planas.\nconst messages = Array.isArray(raw) ? raw : Array.isArray(raw?.messages) ? raw.messages : [];\n\nconst turns = messages\n  .filter((message) => typeof message.body === 'string' && message.body.trim())\n  .sort((a, b) => new Date(a.dateAdded || 0) - new Date(b.dateAdded || 0))\n  .map((message) => `${message.direction === 'inbound' ? 'CLIENTE' : 'FRUTITODO'}: ${message.body.trim()}`);\n\nconst lastMessageId = messages\n  .slice()\n  .sort((a, b) => new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0))[0]?.id || '';\n\nreturn [{\n  json: {\n    transcript: turns.join('\\n'),\n    turns: turns.length,\n    readStatus: response.statusCode,\n    // Idempotencia: el mismo último mensaje del mismo contacto es el mismo pedido.\n    idempotencySeed: `${input.contactId}|${input.action}|${lastMessageId || input.resumen}`,\n  },\n}];\n"
       },
-      "id": "e7cd3b00-a09e-4a3c-86fd-d47a3167f677",
+      "id": "7d72e9e1-917f-499f-8c7c-0ed0ff7085f9",
       "name": "Armar transcripción",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -316,7 +322,7 @@
           }
         }
       },
-      "id": "e8ece1d8-cafa-4e70-9b28-856d621ad46f",
+      "id": "4df5905e-9ef0-40b5-82db-f1ea03870e82",
       "name": "Extraer pedido (OpenAI)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -329,7 +335,7 @@
       "parameters": {
         "jsCode": "const input = $('Normalizar entrada').first().json;\nconst response = $input.first().json;\nconst conversation = $('Buscar conversación GHL').first().json;\nconst conversationId = conversation?.body?.conversations?.[0]?.id || null;\n\nlet extracted = null;\nlet problem = null;\nif (response.statusCode !== 200) {\n  problem = `OpenAI respondió ${response.statusCode}`;\n} else {\n  try {\n    extracted = JSON.parse(response.body?.choices?.[0]?.message?.content || 'null');\n  } catch (error) {\n    problem = 'La respuesta del modelo no es JSON válido';\n  }\n}\n\nconst transcript = $('Armar transcripción').first().json;\nif (!transcript.turns && !input.resumen) problem = `No se pudieron leer los mensajes de la conversación (GHL respondió ${transcript.readStatus})`;\nif (!problem && extracted && !extracted.ok) problem = extracted.error || 'La conversación no contiene un pedido';\nconst items = (extracted?.items || [])\n  .map((item) => ({\n    name: String(item.name || '').trim(),\n    quantity: Number(item.quantity),\n    ...(item.unit ? { unit: String(item.unit).trim() } : {}),\n  }))\n  .filter((item) => item.name && item.quantity > 0);\nif (!problem && !items.length) problem = 'El pedido no tiene productos con cantidad';\n\nconst name = (extracted?.customer?.name || input.contactName || '').trim();\nconst phone = (extracted?.customer?.phone || input.contactPhone || '').trim();\nif (!problem && !name) problem = 'Falta el nombre del cliente';\nif (!problem && phone.length < 3) problem = 'Falta el teléfono del cliente';\nconst delivery = extracted?.delivery?.type === 'recogida'\n  ? { type: 'recogida' }\n  : { type: 'domicilio', address: (extracted?.delivery?.address || '').trim() };\nif (!problem && delivery.type === 'domicilio' && !delivery.address) problem = 'Falta la dirección del domicilio';\n\n// Resumen legible que se guarda de vuelta en GHL (campo pedido_resumen).\nconst summaryText = [\n  `Cliente: ${name}${extracted?.customer?.document ? ` | Cédula: ${extracted.customer.document}` : ''} | Tel: ${phone}`,\n  delivery.type === 'recogida' ? 'Entrega: Recoge en tienda' : `Entrega: Domicilio – ${delivery.address}`,\n  extracted?.paymentMethod ? `Pago: ${extracted.paymentMethod}` : null,\n  'Productos:',\n  ...items.map((item) => `- ${item.quantity}${item.unit ? ` ${item.unit}` : ''} ${item.name}`),\n  extracted?.notes ? `Observaciones: ${extracted.notes}` : null,\n].filter(Boolean).join('\\n');\n\nreturn [{\n  json: {\n    valid: !problem,\n    problem,\n    action: input.action,\n    conversationId,\n    idempotencySeed: transcript.idempotencySeed,\n    summaryText,\n    payload: {\n      locationId: input.locationId,\n      contactId: input.contactId,\n      conversationId: conversationId || undefined,\n      customer: { name, phone, document: extracted?.customer?.document || undefined },\n      delivery,\n      paymentMethod: extracted?.paymentMethod || undefined,\n      items,\n      notes: extracted?.notes || undefined,\n    },\n  },\n}];\n"
       },
-      "id": "02b25cd1-c2c9-42e0-90e6-5b7d51c6bd1f",
+      "id": "d72230ac-4b25-47f3-90ad-c2f7875a8ef4",
       "name": "Validar extracción",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -349,7 +355,7 @@
           },
           "conditions": [
             {
-              "id": "e4a64304-c1e4-476a-a9fd-b83d828d0894",
+              "id": "1d74c319-93b2-446a-845a-f8b1fcce128a",
               "leftValue": "={{ $json.valid }}",
               "rightValue": "",
               "operator": {
@@ -363,7 +369,7 @@
         },
         "options": {}
       },
-      "id": "c7f8ee17-e546-43e1-95c3-ebc8e013185d",
+      "id": "8d9d9495-ab0f-4f32-b275-048a8b5458e3",
       "name": "¿Pedido válido?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -397,7 +403,7 @@
           }
         }
       },
-      "id": "cd178123-c647-4e39-9030-c3a617d29d9e",
+      "id": "5d3a8628-a1da-43da-8874-7aabdd7af099",
       "name": "Pedir ayuda (no se pudo leer)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -414,7 +420,7 @@
           "responseCode": 422
         }
       },
-      "id": "e9100731-9324-4992-83c5-fe881826f3f5",
+      "id": "644eb1ba-9ef1-4715-a6c7-c5ec142a1a8e",
       "name": "422 Pedido incompleto",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
@@ -430,7 +436,7 @@
         "value": "={{ $json.idempotencySeed }}",
         "dataPropertyName": "sourceEventId"
       },
-      "id": "495f2c95-9d6f-4b78-abd2-437be248a7ea",
+      "id": "8256e8a9-4777-4a98-8ae5-652595cd8048",
       "name": "Llave de idempotencia",
       "type": "n8n-nodes-base.crypto",
       "typeVersion": 1,
@@ -450,7 +456,7 @@
           },
           "conditions": [
             {
-              "id": "3202034e-c61f-4805-b188-fefb5d8aad75",
+              "id": "9ecd37c4-855e-44dc-997f-2caf599c689a",
               "leftValue": "={{ $json.action }}",
               "rightValue": "amend",
               "operator": {
@@ -463,7 +469,7 @@
         },
         "options": {}
       },
-      "id": "d74b0eab-80b8-4c20-9c82-fb7dea105b5f",
+      "id": "cca1ea52-f932-448d-8166-d0470711f3ef",
       "name": "¿Es ajuste?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -497,7 +503,7 @@
           }
         }
       },
-      "id": "51860fe1-09cb-43b0-a75e-40d764996b11",
+      "id": "5cae1fd3-f69b-4b25-9c8f-d6063d15f811",
       "name": "Ajustar pedido abierto",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -517,7 +523,7 @@
           },
           "conditions": [
             {
-              "id": "ab3f1656-8f0f-48c1-8d3c-31e935eda5f4",
+              "id": "6d85fb33-f909-4475-a11f-705bde5db7fb",
               "leftValue": "={{ [404, 409].includes($json.statusCode) }}",
               "rightValue": "",
               "operator": {
@@ -531,7 +537,7 @@
         },
         "options": {}
       },
-      "id": "e2e92bf6-8dd1-4d9d-a3bd-4cf13d19fff4",
+      "id": "d2fd5a63-43a2-479e-9d8e-80c0b1cff1de",
       "name": "¿Sin pedido abierto?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -565,7 +571,7 @@
           }
         }
       },
-      "id": "9e3b3899-7fe7-4575-9245-8d56f1a73bad",
+      "id": "860ae023-b0b5-4dbe-866e-00d3d7949147",
       "name": "Crear pedido",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -578,7 +584,7 @@
       "parameters": {
         "jsCode": "const response = $input.first().json;\nconst status = response.statusCode;\nconst body = response.body || {};\nconst ok = status >= 200 && status < 300 && Boolean(body.order?.number);\n// Un ajuste conserva el número: es el mismo pedido, no uno nuevo.\nconst adjusted = ok && body.amended !== undefined;\nreturn [{\n  json: {\n    ok,\n    status,\n    adjusted,\n    orderNumber: body.order?.number || null,\n    duplicate: Boolean(body.duplicate),\n    error: ok ? null : (body.message || `La app respondió ${status}`),\n  },\n}];\n"
       },
-      "id": "2db661ff-b57d-436f-b69f-cae5d6625462",
+      "id": "6449cc8d-f191-4205-b93b-8fba922e3110",
       "name": "Resultado",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -598,7 +604,7 @@
           },
           "conditions": [
             {
-              "id": "c4a8f1ae-7ea3-4937-8686-d9c5ee836dea",
+              "id": "df58d71a-195d-444b-91fc-7458a067cc4f",
               "leftValue": "={{ $json.ok }}",
               "rightValue": "",
               "operator": {
@@ -612,7 +618,7 @@
         },
         "options": {}
       },
-      "id": "6236fbd6-fc24-45bc-a790-a975cab31321",
+      "id": "2de14f8e-4315-4202-854e-f45e16828d56",
       "name": "¿Registrado?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -644,7 +650,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ (() => {\n  const cfg = $('Config').item.json;\n  const p = $('Validar extracción').item.json.payload;\n  const r = $('Resultado').item.json;\n  const fields = [\n    [cfg.CF_ULTIMO_PEDIDO_NUMERO, r.orderNumber],\n    [cfg.CF_ULTIMO_PEDIDO_ESTADO, 'nuevo'],\n    [cfg.CF_PEDIDO_RESUMEN, $('Validar extracción').item.json.summaryText],\n    [cfg.CF_CEDULA, p.customer.document],\n    [cfg.CF_METODO_PAGO, p.paymentMethod],\n  ].filter(([key, value]) => key && value);\n  const body = { customFields: fields.map(([key, value]) => ({ key, field_value: value })) };\n  if (p.delivery.type === 'domicilio') body.address1 = p.delivery.address;\n  return JSON.stringify(body);\n})() }}",
+        "jsonBody": "={{ (() => {\n  const cfg = $('Config').item.json;\n  const p = $('Validar extracción').item.json.payload;\n  const r = $('Resultado').item.json;\n  const fields = [\n    [cfg.CF_ULTIMO_PEDIDO_NUMERO, r.orderNumber],\n    [cfg.CF_ULTIMO_PEDIDO_ESTADO, 'nuevo'],\n    [cfg.CF_PEDIDO_RESUMEN, $('Validar extracción').item.json.summaryText],\n    [cfg.CF_CEDULA, p.customer.document],\n    [cfg.CF_METODO_PAGO, p.paymentMethod],\n    [cfg.CF_DIRECCION, p.delivery.type === 'domicilio' ? p.delivery.address : null],\n  ].filter(([key, value]) => key && value);\n  const body = { customFields: fields.map(([key, value]) => ({ key, field_value: value })) };\n  if (p.delivery.type === 'domicilio') body.address1 = p.delivery.address;\n  return JSON.stringify(body);\n})() }}",
         "options": {
           "response": {
             "response": {
@@ -654,7 +660,7 @@
           }
         }
       },
-      "id": "42983315-fd7a-4adb-ba62-356dbc4d59c6",
+      "id": "444c6c01-1f64-4094-a8f7-fbef3b90efd6",
       "name": "Guardar datos en el contacto GHL",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -675,7 +681,7 @@
           },
           "conditions": [
             {
-              "id": "45bd144b-fd6c-4f61-ba78-31259a7f0cb0",
+              "id": "9f1aa730-1309-489b-947b-9024a308a217",
               "leftValue": "={{ $('Config').item.json.SEND_CONFIRMATION }}",
               "rightValue": "true",
               "operator": {
@@ -688,7 +694,7 @@
         },
         "options": {}
       },
-      "id": "3aae4dc8-5f72-4464-842f-de4cb8d3b450",
+      "id": "fd09fd8f-3944-4997-9952-343fcc39f429",
       "name": "¿Enviar confirmación?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -730,7 +736,7 @@
           }
         }
       },
-      "id": "5734ff34-7e35-463c-85e9-f6d6ffb5cca9",
+      "id": "8da0df2f-9b73-40b0-9e97-2edb28b90061",
       "name": "Confirmar al cliente",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -748,7 +754,7 @@
           "responseCode": 200
         }
       },
-      "id": "c15b0830-a300-429f-ba1f-663635918525",
+      "id": "106578ec-192e-4e3d-bc02-904bde54845f",
       "name": "200 Registrado",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
@@ -782,7 +788,7 @@
           }
         }
       },
-      "id": "7eaaf6c1-73c6-4dbd-9581-f3a65f4cd730",
+      "id": "5757f09e-60c7-46ea-9385-04cc55d264bf",
       "name": "Pedir ayuda (app rechazó)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -799,7 +805,7 @@
           "responseCode": 502
         }
       },
-      "id": "146d5024-bc64-4b95-9939-6fc440151307",
+      "id": "57bdfcab-a4ce-48ea-b4b7-6f9b58ac8946",
       "name": "502 No registrado",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
