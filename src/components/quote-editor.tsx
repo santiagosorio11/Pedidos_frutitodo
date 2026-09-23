@@ -29,8 +29,9 @@ type Match = (Product & { score: number }) | null;
 let lineKeySequence = 0;
 const newKey = () => (lineKeySequence += 1);
 
-/* Below this the suggestion is more likely wrong than helpful; the operator picks instead. */
-const MIN_MATCH_SCORE = 0.45;
+/* Share of the line's words the product must cover. Half is not enough: "tomate chonto"
+   would become TOMATE DE ARBOL, a different fruit. Below this the operator picks instead. */
+const MIN_MATCH_SCORE = 0.6;
 
 function quantityText(value: number): string {
   return String(value).replace(".", ",");
