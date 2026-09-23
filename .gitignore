@@ -29,3 +29,6 @@ n8n_orbita_pedidos_mvp.json
 .DS_Store
 Thumbs.db
 *.log
+
+# Client product catalog (imported with npm run import:products)
+data/

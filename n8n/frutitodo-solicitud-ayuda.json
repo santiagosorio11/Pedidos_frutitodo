@@ -1,0 +1,290 @@
+{
+  "name": "Frutitodo · Solicitud de ayuda → Panel",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "frutitodo-ayuda",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "aab16b27-427c-4722-a82e-7be196ed7ca9",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "33a75f48-738c-431e-8286-8acd43e0828d"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "33f8cc58-3f53-48e1-8c00-18273d47466f",
+              "name": "INBOUND_SECRET",
+              "value": "REEMPLAZAR (el mismo valor que pones en el header x-frutitodo-secret del Custom Webhook de GHL)",
+              "type": "string"
+            },
+            {
+              "id": "11390f4e-90c0-450c-9ff4-b7ae6b5579d1",
+              "name": "GHL_TOKEN",
+              "value": "pit-REEMPLAZAR (Private Integration token de la subcuenta)",
+              "type": "string"
+            },
+            {
+              "id": "3f772b71-92e1-481e-b2ca-4bc571775d71",
+              "name": "APP_URL",
+              "value": "https://pedidos-frutitodo-eight.vercel.app",
+              "type": "string"
+            },
+            {
+              "id": "2df4eab3-7b1a-4395-bf72-07cc3bc8d773",
+              "name": "APP_INGEST_SECRET",
+              "value": "REEMPLAZAR (mismo valor que GHL_INGEST_SECRET en Vercel)",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "46fb0a3b-1284-4263-8a9f-095e508c8715",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "notes": "Completa estos valores antes de activar el workflow.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "33a2c586-c087-450f-aef5-fb330cc85c6d",
+              "leftValue": "={{ $('Webhook').item.json.headers['x-frutitodo-secret'] }}",
+              "rightValue": "={{ $('Config').item.json.INBOUND_SECRET }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "703d0adb-49eb-4341-b7a8-20dfcb5a2d8b",
+      "name": "¿Secreto válido?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: \"unauthorized\" }) }}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "56268f95-9d50-42ce-be23-89d2d732ba3e",
+      "name": "401 No autorizado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://services.leadconnectorhq.com/conversations/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Config').item.json.GHL_TOKEN }}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-04-15"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "locationId",
+              "value": "={{ $('Webhook').item.json.body.locationId }}"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $('Webhook').item.json.body.contactId }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "767a9e60-ad5c-4378-bc2a-ec6d19386fa8",
+      "name": "Buscar conversación GHL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').item.json.APP_URL }}/api/webhooks/ghl/help-requests",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Config').item.json.APP_INGEST_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const b = $('Webhook').item.json.body || {}; return JSON.stringify({ locationId: b.locationId, contactId: b.contactId, conversationId: $json.body?.conversations?.[0]?.id || undefined, customer: { name: b.contactName || undefined, phone: b.contactPhone || undefined }, reason: b.reason || undefined }); })() }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "1d3d7165-f571-4bcb-85dd-510ca5f581df",
+      "name": "Registrar en el panel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: $json.statusCode < 300, status: $json.statusCode }) }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode < 300 ? 200 : 502 }}"
+        }
+      },
+      "id": "1df16627-cd02-40d3-91ee-fb5d0755a1de",
+      "name": "Responder",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "¿Secreto válido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Secreto válido?": {
+      "main": [
+        [
+          {
+            "node": "Buscar conversación GHL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "401 No autorizado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar conversación GHL": {
+      "main": [
+        [
+          {
+            "node": "Registrar en el panel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar en el panel": {
+      "main": [
+        [
+          {
+            "node": "Responder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

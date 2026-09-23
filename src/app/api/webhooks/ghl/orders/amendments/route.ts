@@ -1,45 +1,18 @@
 import type { Json } from "@/types/database";
-import { getServerEnv } from "@/lib/env";
-import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
+import { invalidPayload, noStoreJson, serverError } from "@/lib/api-response";
 import { formatOrderNumber, payloadHash } from "@/lib/order-utils";
 import { ingestOrderSchema } from "@/lib/schemas";
-import { readBearerToken, safeEqual } from "@/lib/security";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { readWebhookJson } from "@/lib/webhook-request";
 
 export const runtime = "nodejs";
 
-const MAX_BODY_BYTES = 256 * 1024;
-
 export async function POST(request: Request) {
   try {
-    const providedSecret = readBearerToken(request);
-    if (!providedSecret || !safeEqual(providedSecret, getServerEnv().ghlIngestSecret)) {
-      return unauthorized();
-    }
+    const read = await readWebhookJson(request);
+    if (!read.ok) return read.response;
 
-    const contentLength = Number(request.headers.get("content-length") || "0");
-    if (contentLength > MAX_BODY_BYTES) {
-      return noStoreJson(
-        { error: "payload_too_large", message: "El webhook supera 256 KB" },
-        { status: 413 },
-      );
-    }
-
-    let raw: unknown;
-    try {
-      const text = await request.text();
-      if (Buffer.byteLength(text, "utf8") > MAX_BODY_BYTES) {
-        return noStoreJson(
-          { error: "payload_too_large", message: "El webhook supera 256 KB" },
-          { status: 413 },
-        );
-      }
-      raw = JSON.parse(text);
-    } catch {
-      return noStoreJson({ error: "invalid_json", message: "El cuerpo debe ser JSON válido" }, { status: 400 });
-    }
-
-    const parsed = ingestOrderSchema.safeParse(raw);
+    const parsed = ingestOrderSchema.safeParse(read.body);
     if (!parsed.success) return invalidPayload(parsed.error);
     const input = parsed.data;
 
@@ -70,6 +43,9 @@ export async function POST(request: Request) {
       p_items: input.items as unknown as Json,
       p_notes: input.notes || "",
       p_payload_hash: payloadHash(input),
+      p_customer_document: input.customer.document || null,
+      p_payment_method: input.paymentMethod || null,
+      p_conversation_id: input.conversationId || null,
     });
 
     if (error) throw error;
@@ -100,13 +76,17 @@ export async function POST(request: Request) {
       );
     }
 
+    /* An amendment is an adjustment to the same order, never a new one: the number stays,
+       so the customer and the pickers keep referring to a single order. */
+    const number = formatOrderNumber(result.display_sequence as number);
     return noStoreJson({
       amended: result.was_amended,
       duplicate: result.outcome === "duplicate",
       needsReprint: result.needs_reprint,
+      message: `Ajuste aplicado al pedido ${number}`,
       order: {
         id: result.order_id,
-        number: formatOrderNumber(result.display_sequence as number),
+        number,
         status: "pending",
       },
     });

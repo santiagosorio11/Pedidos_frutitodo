@@ -1,6 +1,6 @@
 import { after } from "next/server";
 import { actionRequestSchema } from "@/lib/schemas";
-import { notifyOrderDispatched } from "@/lib/outbound-webhook";
+import { notifyOrderEvent } from "@/lib/outbound-webhook";
 import { getPanelAccess } from "@/lib/panel-auth";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { invalidPayload, noStoreJson, serverError, unauthorized } from "@/lib/api-response";
@@ -21,6 +21,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       p_order_id: id,
       p_location_id: access.locationId,
       p_request_id: parsed.data.requestId,
+      p_operator: parsed.data.operator || null,
     });
 
     if (error?.message.includes("ORDER_NOT_FOUND")) {
@@ -40,11 +41,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     /* The dispatch is already committed, so the CRM update runs after the response:
        the operator never waits on n8n, and n8n being down never fails the action. */
     after(() =>
-      notifyOrderDispatched({
+      notifyOrderEvent({
         event: "order.dispatched",
         requestId: parsed.data.requestId,
         ghlLocationId: access.ghlLocationId,
         ghlContactId: row.ghl_contact_id,
+        operator: parsed.data.operator || null,
         order,
       }),
     );

@@ -40,4 +40,6 @@ npm.cmd run build
 npm.cmd run test:e2e
 ```
 
+Los workflows de n8n (pedido de la IA, solicitud de ayuda y eventos del panel) están en [`n8n/`](n8n) y se configuran según [docs/ghl-setup.md](docs/ghl-setup.md).
+
 Los archivos `orbita_pedidos_mvp.html` y `n8n_orbita_pedidos_mvp.json` son referencias históricas y no forman parte del runtime.

@@ -1,0 +1,445 @@
+{
+  "name": "Frutitodo · Eventos del panel → GHL",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "frutitodo-eventos",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "474e48b7-094b-40ff-99d5-f0e58954207d",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "ec5e1415-54c8-4bb3-bc73-7627823e2a4c"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12aa323f-5bd2-49c2-af21-ee2e9c1eded7",
+              "name": "APP_WEBHOOK_SECRET",
+              "value": "REEMPLAZAR (mismo valor que N8N_WEBHOOK_SECRET en Vercel)",
+              "type": "string"
+            },
+            {
+              "id": "68e81aa8-86b0-455b-8580-30860b4a9986",
+              "name": "GHL_TOKEN",
+              "value": "pit-REEMPLAZAR (Private Integration token de la subcuenta)",
+              "type": "string"
+            },
+            {
+              "id": "e06d6223-1280-46b2-9bf2-c9216e286cf4",
+              "name": "CF_ULTIMO_PEDIDO_ESTADO",
+              "value": "ultimo_pedido_estado",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "adbaf016-f5ff-4a86-b4ec-59c086ca14a7",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "notes": "Completa estos valores antes de activar el workflow.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f3941237-fd42-474b-afab-681ad31a230c",
+              "leftValue": "={{ $('Webhook').item.json.headers.authorization }}",
+              "rightValue": "=Bearer {{ $('Config').item.json.APP_WEBHOOK_SECRET }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4597fc7d-27c5-4a82-8a95-99a2438a4985",
+      "name": "¿Secreto válido?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: \"unauthorized\" }) }}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "b3354228-79c7-45f0-8a98-69faf2683621",
+      "name": "401 No autorizado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Eventos que envía la app (N8N_DISPATCH_WEBHOOK_URL): order.printed y order.dispatched.\n// La cotización NO pasa por aquí: el panel la envía directo con la API de GHL.\nconst cfg = $('Config').first().json;\nconst event = $('Webhook').first().json.body || {};\nconst order = event.order || {};\nconst firstName = (order.customerName || '').split(' ')[0] || '';\n\nconst fields = [];\nlet message = null;\n\nif (event.event === 'order.printed') {\n  fields.push([cfg.CF_ULTIMO_PEDIDO_ESTADO, 'en_preparacion']);\n}\n\nif (event.event === 'order.dispatched') {\n  fields.push([cfg.CF_ULTIMO_PEDIDO_ESTADO, 'despachado']);\n  // Texto provisional: Frutitodo debe enviar el mensaje definitivo.\n  message = order.deliveryType === 'recogida'\n    ? `Hola ${firstName} 👋 Tu pedido ${order.orderNumber} ya está listo para recoger en tienda.`\n    : `Hola ${firstName} 👋 Tu pedido ${order.orderNumber} ya va en camino 🛵. ¡Gracias por comprar en Frutitodo!`;\n}\n\nreturn [{\n  json: {\n    event: event.event,\n    contactId: event.ghlContactId,\n    customFields: fields.filter(([key, value]) => key && value).map(([key, value]) => ({ key, field_value: value })),\n    message,\n  },\n}];\n"
+      },
+      "id": "db639f3e-126e-4900-8eaa-35d98df7bd54",
+      "name": "Planificar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7c44e85b-46dd-492b-9ebc-f2a78fcb33aa",
+              "leftValue": "={{ $json.contactId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e97e1370-f898-4a6f-9694-bf986968c17b",
+      "name": "¿Tiene contacto?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, skipped: \"no_contact\" }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "6a9bf063-4023-4bce-9873-ccfa6f632008",
+      "name": "200 Sin contacto (pedido manual)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $('Planificar').item.json.contactId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Config').item.json.GHL_TOKEN }}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ customFields: $('Planificar').item.json.customFields }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "4aca67da-d1bc-4f84-9084-edc54f345bee",
+      "name": "Actualizar contacto GHL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2ae381ef-b4e1-4cca-a0db-8d73ff2c431f",
+              "leftValue": "={{ $('Planificar').item.json.message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7481afdf-6d12-4d3d-aad3-0e46f9c71e2b",
+      "name": "¿Hay mensaje?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/conversations/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Config').item.json.GHL_TOKEN }}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-04-15"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ type: 'WhatsApp', contactId: $('Planificar').item.json.contactId, message: $('Planificar').item.json.message }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "efa343bd-319a-495d-8c5a-66399994db72",
+      "name": "Enviar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: $json.statusCode < 300, status: $json.statusCode }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "48c37d67-098c-40a5-9e9f-c46bf1ae2d2b",
+      "name": "Responder envío",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "5800d183-bac1-470d-ae60-3e143f7ae011",
+      "name": "200 Listo",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        420
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "¿Secreto válido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Secreto válido?": {
+      "main": [
+        [
+          {
+            "node": "Planificar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "401 No autorizado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planificar": {
+      "main": [
+        [
+          {
+            "node": "¿Tiene contacto?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Tiene contacto?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar contacto GHL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "200 Sin contacto (pedido manual)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar contacto GHL": {
+      "main": [
+        [
+          {
+            "node": "¿Hay mensaje?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay mensaje?": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "200 Listo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Responder envío",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

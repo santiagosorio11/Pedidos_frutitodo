@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   canonicalOrderPayload,
   formatOrderNumber,
+  ghlConversationUrl,
   needsReprint,
   payloadHash,
   startOfTodayInBogota,
@@ -29,6 +30,16 @@ describe("order utilities", () => {
     expect(payloadHash(input)).toBe(payloadHash(JSON.parse(canonicalOrderPayload(input))));
   });
 
+  it("keeps the hash stable when optional fields arrive blank or absent", () => {
+    const withBlanks = ingestOrderSchema.parse({
+      ...input,
+      conversationId: "",
+      paymentMethod: "",
+      customer: { name: "Ana", phone: "3001234567", document: "" },
+    });
+    expect(payloadHash(withBlanks)).toBe(payloadHash(input));
+  });
+
   it("calculates midnight in Bogota", () => {
     expect(startOfTodayInBogota(new Date("2026-09-09T18:00:00.000Z"))).toBe("2026-09-09T05:00:00.000Z");
   });
@@ -41,6 +52,11 @@ function orderWith(overrides: Partial<Order>): Order {
     sourceEventId: "event_12345678",
     customerName: "Ana",
     customerPhone: "3001234567",
+    customerDocument: null,
+    paymentMethod: null,
+    ghlContactId: "contact-1",
+    conversationId: null,
+    source: "ai",
     deliveryType: "recogida",
     deliveryAddress: null,
     items: [{ name: "Pan", quantity: 2 }],
@@ -53,6 +69,12 @@ function orderWith(overrides: Partial<Order>): Order {
     dispatchedAt: null,
     lastAmendedAt: null,
     amendmentCount: 0,
+    lastPrintedBy: null,
+    dispatchedBy: null,
+    quote: null,
+    quotedTotal: null,
+    quotedAt: null,
+    quoteSentBy: null,
     ...overrides,
   };
 }
@@ -88,5 +110,23 @@ describe("needsReprint", () => {
         }),
       ),
     ).toBe(false);
+  });
+});
+
+describe("ghlConversationUrl", () => {
+  it("opens the conversation in the white label when the id is known", () => {
+    expect(ghlConversationUrl("UfbKDvUAPCDEaRQWYXau", { conversationId: "61PklkWIorEaDwT7KFAN", ghlContactId: "c1" })).toBe(
+      "https://app.iaorbita.com/v2/location/UfbKDvUAPCDEaRQWYXau/conversations/conversations/61PklkWIorEaDwT7KFAN",
+    );
+  });
+
+  it("falls back to the contact page without a conversation id", () => {
+    expect(ghlConversationUrl("loc", { conversationId: null, ghlContactId: "contact-9" }, "https://app.example.com/")).toBe(
+      "https://app.example.com/v2/location/loc/contacts/detail/contact-9",
+    );
+  });
+
+  it("has nowhere to go for a phone order", () => {
+    expect(ghlConversationUrl("loc", { conversationId: null, ghlContactId: null })).toBeNull();
   });
 });

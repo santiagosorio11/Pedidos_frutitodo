@@ -39,6 +39,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      help_requests: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          customer_name: string | null
+          customer_phone: string | null
+          details: Json
+          ghl_contact_id: string
+          id: string
+          last_requested_at: string
+          location_id: string
+          order_id: string | null
+          reason: string | null
+          request_count: number
+          requested_at: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["help_request_status"]
+          updated_at: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          details?: Json
+          ghl_contact_id: string
+          id?: string
+          last_requested_at?: string
+          location_id: string
+          order_id?: string | null
+          reason?: string | null
+          request_count?: number
+          requested_at?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["help_request_status"]
+          updated_at?: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          details?: Json
+          ghl_contact_id?: string
+          id?: string
+          last_requested_at?: string
+          location_id?: string
+          order_id?: string | null
+          reason?: string | null
+          request_count?: number
+          requested_at?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["help_request_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           created_at: string
@@ -117,6 +177,18 @@ export type Database = {
       orders: {
         Row: {
           amendment_count: number
+          conversation_id: string | null
+          customer_document: string | null
+          dispatched_by: string | null
+          last_printed_by: string | null
+          payment_method: string | null
+          quoted_at: string | null
+          quoted_total: number | null
+          quote: Json | null
+          quote_message_id: string | null
+          quote_request_id: string | null
+          quote_sent_by: string | null
+          source: string
           created_at: string
           customer_name: string
           customer_phone: string
@@ -125,7 +197,7 @@ export type Database = {
           dispatched_at: string | null
           display_sequence: number
           first_printed_at: string | null
-          ghl_contact_id: string
+          ghl_contact_id: string | null
           id: string
           items: Json
           last_amended_at: string | null
@@ -142,6 +214,18 @@ export type Database = {
         }
         Insert: {
           amendment_count?: number
+          conversation_id?: string | null
+          customer_document?: string | null
+          dispatched_by?: string | null
+          last_printed_by?: string | null
+          payment_method?: string | null
+          quoted_at?: string | null
+          quoted_total?: number | null
+          quote?: Json | null
+          quote_message_id?: string | null
+          quote_request_id?: string | null
+          quote_sent_by?: string | null
+          source?: string
           created_at?: string
           customer_name: string
           customer_phone: string
@@ -150,7 +234,7 @@ export type Database = {
           dispatched_at?: string | null
           display_sequence?: never
           first_printed_at?: string | null
-          ghl_contact_id: string
+          ghl_contact_id?: string | null
           id?: string
           items: Json
           last_amended_at?: string | null
@@ -167,6 +251,18 @@ export type Database = {
         }
         Update: {
           amendment_count?: number
+          conversation_id?: string | null
+          customer_document?: string | null
+          dispatched_by?: string | null
+          last_printed_by?: string | null
+          payment_method?: string | null
+          quoted_at?: string | null
+          quoted_total?: number | null
+          quote?: Json | null
+          quote_message_id?: string | null
+          quote_request_id?: string | null
+          quote_sent_by?: string | null
+          source?: string
           created_at?: string
           customer_name?: string
           customer_phone?: string
@@ -175,7 +271,7 @@ export type Database = {
           dispatched_at?: string | null
           display_sequence?: never
           first_printed_at?: string | null
-          ghl_contact_id?: string
+          ghl_contact_id?: string | null
           id?: string
           items?: Json
           last_amended_at?: string | null
@@ -200,6 +296,63 @@ export type Database = {
           },
         ]
       }
+      products: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          location_id: string
+          name: string
+          price: number | null
+          price_unit: string | null
+          price_updated_at: string | null
+          price_updated_by: string | null
+          reference: string
+          sale_note: string | null
+          search_name: string
+          subcategory: string | null
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location_id: string
+          name: string
+          price?: number | null
+          price_unit?: string | null
+          price_updated_at?: string | null
+          price_updated_by?: string | null
+          reference: string
+          sale_note?: string | null
+          search_name: string
+          subcategory?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location_id?: string
+          name?: string
+          price?: number | null
+          price_unit?: string | null
+          price_updated_at?: string | null
+          price_updated_by?: string | null
+          reference?: string
+          sale_note?: string | null
+          search_name?: string
+          subcategory?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -217,6 +370,9 @@ export type Database = {
           p_notes: string
           p_payload_hash: string
           p_source_event_id: string
+          p_customer_document?: string | null
+          p_payment_method?: string | null
+          p_conversation_id?: string | null
         }
         Returns: {
           display_sequence: number
@@ -231,9 +387,22 @@ export type Database = {
           p_location_id: string
           p_order_id: string
           p_request_id: string
+          p_operator?: string | null
         }
         Returns: {
           amendment_count: number
+          conversation_id: string | null
+          customer_document: string | null
+          dispatched_by: string | null
+          last_printed_by: string | null
+          payment_method: string | null
+          quoted_at: string | null
+          quoted_total: number | null
+          quote: Json | null
+          quote_message_id: string | null
+          quote_request_id: string | null
+          quote_sent_by: string | null
+          source: string
           created_at: string
           customer_name: string
           customer_phone: string
@@ -242,7 +411,7 @@ export type Database = {
           dispatched_at: string | null
           display_sequence: number
           first_printed_at: string | null
-          ghl_contact_id: string
+          ghl_contact_id: string | null
           id: string
           items: Json
           last_amended_at: string | null
@@ -269,9 +438,22 @@ export type Database = {
           p_location_id: string
           p_order_id: string
           p_request_id: string
+          p_operator?: string | null
         }
         Returns: {
           amendment_count: number
+          conversation_id: string | null
+          customer_document: string | null
+          dispatched_by: string | null
+          last_printed_by: string | null
+          payment_method: string | null
+          quoted_at: string | null
+          quoted_total: number | null
+          quote: Json | null
+          quote_message_id: string | null
+          quote_request_id: string | null
+          quote_sent_by: string | null
+          source: string
           created_at: string
           customer_name: string
           customer_phone: string
@@ -280,7 +462,7 @@ export type Database = {
           dispatched_at: string | null
           display_sequence: number
           first_printed_at: string | null
-          ghl_contact_id: string
+          ghl_contact_id: string | null
           id: string
           items: Json
           last_amended_at: string | null
@@ -314,6 +496,10 @@ export type Database = {
           p_notes: string
           p_payload_hash: string
           p_source_event_id: string
+          p_customer_document?: string | null
+          p_payment_method?: string | null
+          p_conversation_id?: string | null
+          p_source?: string
         }
         Returns: {
           display_sequence: number
@@ -322,9 +508,71 @@ export type Database = {
           was_created: boolean
         }[]
       }
+      match_products: {
+        Args: { p_location_id: string; p_names: string[] }
+        Returns: {
+          input_index: number
+          id: string
+          reference: string
+          name: string
+          category: string | null
+          subcategory: string | null
+          sale_note: string | null
+          price: number | null
+          price_unit: string | null
+          price_updated_at: string | null
+          score: number
+        }[]
+      }
+      product_categories: {
+        Args: { p_location_id: string }
+        Returns: { category: string; total: number; priced: number }[]
+      }
+      search_products: {
+        Args: {
+          p_category: string | null
+          p_limit: number
+          p_location_id: string
+          p_offset: number
+          p_priced: string | null
+          p_query: string | null
+        }
+        Returns: {
+          id: string
+          reference: string
+          name: string
+          category: string | null
+          subcategory: string | null
+          sale_note: string | null
+          price: number | null
+          price_unit: string | null
+          price_updated_at: string | null
+          total_count: number
+        }[]
+      }
+      open_help_request: {
+        Args: {
+          p_conversation_id: string
+          p_customer_name: string
+          p_customer_phone: string
+          p_details: Json
+          p_ghl_contact_id: string
+          p_location_id: string
+          p_order_id: string | null
+          p_reason: string
+        }
+        Returns: Database["public"]["Tables"]["help_requests"]["Row"][]
+        SetofOptions: {
+          from: "*"
+          to: "help_requests"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
       delivery_type: "domicilio" | "recogida"
+      help_request_status: "open" | "resolved"
       order_event_type: "amended" | "created" | "print_confirmed" | "dispatched"
       order_status: "pending" | "printed" | "dispatched"
     }
@@ -458,7 +706,8 @@ export const Constants = {
   public: {
     Enums: {
       delivery_type: ["domicilio", "recogida"],
-      order_event_type: ["created", "print_confirmed", "dispatched"],
+      help_request_status: ["open", "resolved"],
+      order_event_type: ["created", "print_confirmed", "dispatched", "amended"],
       order_status: ["pending", "printed", "dispatched"],
     },
   },

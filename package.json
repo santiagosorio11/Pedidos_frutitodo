@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:live": "node --env-file-if-exists=.env.local scripts/e2e-live.mjs",
-    "provision:location": "node --env-file-if-exists=.env.local scripts/provision-location.mjs"
+    "provision:location": "node --env-file-if-exists=.env.local scripts/provision-location.mjs",
+    "import:products": "node --env-file-if-exists=.env.local scripts/import-products.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",
